@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Galería</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 95px; /* Espacio inferior para no tapar el contenido */
+      position: relative;
+    }
+
+    /* Encabezado */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Tarjeta Principal Amarilla / Naranja */
+    .gallery-main-card {
+      width: 100%;
+      background: linear-gradient(180deg, #f7d455 0%, #ed8426 100%);
+      border-radius: 28px;
+      padding: 16px 14px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    /* Banner Superior */
+    .gallery-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px 4px;
+    }
+
+    .gallery-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .gallery-banner img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
+    /* Grillas de Fotos */
+    .gallery-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    /* Banners Horizontales Grandes */
+    .wide-card {
+      width: 100%;
+      height: 140px;
+      background: #73b9e5;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease;
+    }
+
+    .wide-card:active,
+    .tall-card:active,
+    .square-card:active {
+      transform: scale(0.97);
+    }
+
+    /* Fila de 3 Tarjetas Verticales */
+    .row-three {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .tall-card {
+      height: 130px;
+      background: #73b9e5;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease;
+    }
+
+    /* Fila de 2 Tarjetas Cuadradas */
+    .row-two {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .square-card {
+      height: 125px;
+      background: #73b9e5;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease;
+    }
+
+    /* Elementos Multimedia e Imágenes */
+    .media-item {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    .card-label {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+      backdrop-filter: blur(2px);
+    }
+
+    .play-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Filtros para videos */
+    .filter-warm { filter: sepia(0.35) saturate(1.8) contrast(1.1); }
+    .filter-cool { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
+    .filter-vintage { filter: grayscale(0.5) contrast(1.2) brightness(1.15); }
+    .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(0.95); }
+    .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2); }
+
+    /* Visor Modal Pantalla Completa */
+    .viewer-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .viewer-content-box {
+      width: 100%;
+      max-width: 390px;
+      max-height: 75vh;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .viewer-content-box video,
+    .viewer-content-box img {
+      width: 100%;
+      height: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+    }
+
+    .close-viewer-btn {
+      background: #ffffff;
+      color: #111;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <div class="gallery-main-card">
+      <div class="gallery-banner">
+        <h2>Galería</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/1375/1375106.png" alt="Fotos Galería">
+      </div>
+
+      <!-- Cuadrícula Expandida con Múltiples Imágenes -->
+      <section class="gallery-grid" id="galleryGrid">
+        
+        <!-- Banners Grandes Superiores -->
+        <div class="wide-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80', 'Estadio al Atardecer')">
+          <img class="media-item" src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80" alt="Estadio">
+          <span class="card-label">Estadio MLB</span>
+        </div>
+
+        <div class="wide-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80', 'Guante y Pelota Clásica')">
+          <img class="media-item" src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80" alt="Béisbol">
+          <span class="card-label">Guante & Cuero</span>
+        </div>
+
+        <!-- Fila de 3 Tarjetas Verticales -->
+        <div class="row-three">
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80', 'Bateador Profesional')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80" alt="Bateo">
+            <span class="card-label">Swing</span>
+          </div>
+
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80', 'Lanzamiento del Pitcher')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80" alt="Pitcher">
+            <span class="card-label">Pitch</span>
+          </div>
+
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80', 'Diamante de Juego')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80" alt="Diamante">
+            <span class="card-label">Campo</span>
+          </div>
+        </div>
+
+        <!-- Fila de 2 Tarjetas Medianas -->
+        <div class="row-two">
+          <div class="square-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80', 'Pelota en el Aire')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80" alt="Acción">
+            <span class="card-label">Acción</span>
+          </div>
+
+          <div class="square-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80', 'Banquillo y Cascos')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80" alt="Dugout">
+            <span class="card-label">Dugout</span>
+          </div>
+        </div>
+
+        <!-- Fila de 3 Tarjetas Adicionales -->
+        <div class="row-three">
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80', 'Entrenamiento de Bateo')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80" alt="Entrenamiento">
+            <span class="card-label">Training</span>
+          </div>
+
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80', 'Celebración de Home Run')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80" alt="Celebración">
+            <span class="card-label">Triunfo</span>
+          </div>
+
+          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80', 'Luces del Estadio Nocturno')">
+            <img class="media-item" src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80" alt="Noche">
+            <span class="card-label">Noche</span>
+          </div>
+        </div>
+
+        <!-- Contenedor dinámico para Videos Guardados desde Filtros -->
+        <div id="savedVideosContainer"></div>
+
+      </section>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+
+    <!-- Modal Visor Pantalla Completa -->
+    <div class="viewer-modal" id="viewerModal">
+      <div class="viewer-content-box" id="viewerBox"></div>
+      <button class="close-viewer-btn" id="closeViewerBtn" aria-label="Cerrar visor">
+        <i data-lucide="x" style="width: 26px; height: 26px;"></i>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const viewerModal = document.getElementById("viewerModal");
+    const viewerBox = document.getElementById("viewerBox");
+    const closeViewerBtn = document.getElementById("closeViewerBtn");
+    const savedVideosContainer = document.getElementById("savedVideosContainer");
+
+    // Abrir visor con Imagen
+    function openPhotoViewer(url, title) {
+      viewerBox.innerHTML = `<img src="${url}" alt="${title}">`;
+      viewerModal.style.display = "flex";
+      lucide.createIcons();
+    }
+
+    // Abrir visor con Video Guardado
+    function openVideoViewer(videoUrl, filterClass) {
+      viewerBox.innerHTML = `
+        <video class="${filterClass || ''}" controls autoplay loop style="width: 100%; height: 100%;">
+          <source src="${videoUrl}" type="video/mp4">
+        </video>
+      `;
+      viewerModal.style.display = "flex";
+      lucide.createIcons();
+    }
+
+    closeViewerBtn.addEventListener("click", () => {
+      viewerBox.innerHTML = "";
+      viewerModal.style.display = "none";
+    });
+
+    // Cargar videos guardados desde localStorage (Filtros / RA)
+    const savedGallery = JSON.parse(localStorage.getItem("strike_gallery") || "[]");
+    if (savedGallery.length > 0) {
+      savedVideosContainer.innerHTML = `
+        <div style="font-weight: 800; font-size: 14px; text-transform: uppercase; margin: 10px 0 4px; color: #111;">
+          Tus Creaciones Guardadas (${savedGallery.length})
+        </div>
+      `;
+
+      savedGallery.forEach((item, index) => {
+        const videoCard = document.createElement("div");
+        videoCard.className = "wide-card";
+        videoCard.style.marginTop = "8px";
+        videoCard.innerHTML = `
+          <video class="media-item ${item.appliedFilter || ''}" muted playsinline>
+            <source src="${item.videoUrl}" type="video/mp4">
+          </video>
+          <div class="play-badge">
+            <i data-lucide="play" style="width: 20px; height: 20px; fill: white;"></i>
+          </div>
+          <span class="card-label">Video Guardado #${index + 1}</span>
+        `;
+        videoCard.onclick = () => openVideoViewer(item.videoUrl, item.appliedFilter);
+        savedVideosContainer.appendChild(videoCard);
+      });
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

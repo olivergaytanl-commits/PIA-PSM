@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Contenedor con degradado azul vertical */
+    .login-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #eef5fc 0%, #a8cbf0 55%, #8cb9e8 100%);
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Encabezado con Logo */
+    .header-box {
+      margin-top: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .header-box h1 {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .baseball-logo {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+    }
+
+    /* Formulario de Login */
+    .form-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .input-group label {
+      font-size: 16px;
+      color: #111;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 48px;
+      background: #ffffff;
+      border: none;
+      border-radius: 25px;
+      padding: 0 20px;
+      font-size: 16px;
+      color: #111;
+      outline: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .forgot-link {
+      align-self: flex-end;
+      color: #111;
+      font-size: 13.5px;
+      text-decoration: none;
+      margin-top: -6px;
+      margin-right: 4px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 48px;
+      background: #1865e2;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(24, 101, 226, 0.3);
+      transition: transform 0.12s ease;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Pie de página */
+    .signup-text {
+      font-size: 14px;
+      color: #ffffff;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .signup-text a {
+      color: #0070f3;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="login-container">
+    <!-- Encabezado Principal -->
+    <div class="header-box">
+      <h1>Strike Zone</h1>
+      <img class="baseball-logo" src="https://cdn-icons-png.flaticon.com/512/33/33736.png" alt="Pelota de Béisbol">
+    </div>
+
+    <!-- Formulario de Inicio de Sesión -->
+    <form class="form-wrapper" id="loginForm">
+      <div class="input-group">
+        <label for="username">Login</label>
+        <input type="text" id="username" class="login-input" required autocomplete="username">
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" class="login-input" required autocomplete="current-password">
+      </div>
+
+      <a href="#" class="forgot-link">forgot Password</a>
+
+      <button type="submit" class="submit-btn">Ingresar</button>
+    </form>
+
+    <!-- Enlace inferior a Sign Up -->
+    <div class="signup-text">
+      Don't have an account? <a href="#">Sing Up</a>
+    </div>
+  </main>
+
+  <script>
+    // Al enviar el formulario, redirige automáticamente a la página principal
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

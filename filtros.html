@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Filtros</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Confetti para feedback de guardado -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 24px;
+      position: relative;
+    }
+
+    /* Encabezado */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ball-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    /* Tarjeta Principal Rosa / Morada */
+    .filters-main-card {
+      width: 100%;
+      flex: 1;
+      background: linear-gradient(180deg, #d880bc 0%, #9e5ba8 100%);
+      border-radius: 28px;
+      padding: 16px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    /* Banner Superior */
+    .filters-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px 10px;
+    }
+
+    .filters-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filters-banner img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
+    /* Contenedor del Video / Lienzo */
+    .video-viewport {
+      width: 100%;
+      height: 380px;
+      background-color: #111;
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    video#targetVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: filter 0.3s ease;
+    }
+
+    /* Capa de los 5 cuadritos de filtros sobre el video */
+    .filters-palette {
+      position: absolute;
+      bottom: 14px;
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 8px 12px;
+      border-radius: 14px;
+      backdrop-filter: blur(4px);
+      z-index: 5;
+    }
+
+    .filter-swatch {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2.5px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .filter-swatch:active,
+    .filter-swatch.active {
+      transform: scale(1.15);
+      border-color: #ffffff;
+      box-shadow: 0 0 10px #ffffff;
+    }
+
+    /* Degradados de los 5 botones de filtro */
+    .swatch-warm {
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    }
+    .swatch-cool {
+      background: linear-gradient(135deg, #1fa2ff, #12d8fa);
+    }
+    .swatch-vintage {
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    }
+    .swatch-field {
+      background: linear-gradient(135deg, #56ab2f, #a8e063);
+    }
+    .swatch-sunset {
+      background: linear-gradient(135deg, #f7ce55, #4ca1af);
+    }
+
+    /* Definición CSS de los 5 Filtros */
+    .filter-none { filter: none; }
+    .filter-warm { filter: sepia(0.35) saturate(1.8) contrast(1.1); }
+    .filter-cool { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
+    .filter-vintage { filter: grayscale(0.5) contrast(1.2) brightness(1.15); }
+    .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(0.95); }
+    .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2); }
+
+    /* Barra de Botones Inferiores */
+    .actions-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 0 14px;
+    }
+
+    .action-square-btn {
+      width: 58px;
+      height: 58px;
+      background: #ffffff;
+      border: 3px solid #111;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      transition: transform 0.12s ease;
+      color: #111;
+    }
+
+    .action-square-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Modal emergente para elegir videos precargados */
+    .video-picker-modal {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.65);
+      border-radius: 28px;
+      z-index: 10;
+      padding: 20px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(4px);
+    }
+
+    .picker-card {
+      background: white;
+      width: 100%;
+      border-radius: 20px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .picker-card h3 {
+      font-size: 16px;
+      text-align: center;
+      color: #111;
+      font-weight: 800;
+    }
+
+    .video-option-btn {
+      background: #f0f2f5;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .video-option-btn:hover {
+      background: #e1e6ed;
+    }
+
+    .close-modal-btn {
+      background: #e85375;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      align-self: center;
+      margin-top: 4px;
+    }
+
+    /* Botón Home Inferior */
+    .home-container {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .home-btn {
+      width: 54px;
+      height: 54px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: transform 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.92);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <!-- Encabezado -->
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <div class="header-icons">
+        <span class="ball-icon">⚾</span>
+        <i data-lucide="heart" style="width: 22px; height: 22px; fill: #ff4757; color: #ff4757;"></i>
+      </div>
+    </header>
+
+    <!-- Tarjeta Principal de Filtros -->
+    <div class="filters-main-card">
+      <div class="filters-banner">
+        <h2>Filtros</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/4406/4406319.png" alt="Cámara Filtros 3D">
+      </div>
+
+      <!-- Contenedor del Video -->
+      <div class="video-viewport">
+        <video id="targetVideo" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80">
+          <source id="videoSource" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+        </video>
+
+        <!-- Los 5 cuadritos de selección de filtro -->
+        <div class="filters-palette">
+          <div class="filter-swatch swatch-warm active" data-filter="filter-warm" title="Filtro Cálido"></div>
+          <div class="filter-swatch swatch-cool" data-filter="filter-cool" title="Filtro Frío"></div>
+          <div class="filter-swatch swatch-vintage" data-filter="filter-vintage" title="Filtro Vintage"></div>
+          <div class="filter-swatch swatch-field" data-filter="filter-field" title="Filtro Campo Verde"></div>
+          <div class="filter-swatch swatch-sunset" data-filter="filter-sunset" title="Filtro Atardecer"></div>
+        </div>
+      </div>
+
+      <!-- Acciones: Galería de videos y Guardar -->
+      <div class="actions-bar">
+        <!-- Botón Galería: Abre selector de videos precargados -->
+        <button class="action-square-btn" id="openPickerBtn" aria-label="Elegir Video">
+          <i data-lucide="image" style="width: 32px; height: 32px; stroke-width: 2.2;"></i>
+        </button>
+
+        <!-- Botón Guardar Video Editado -->
+        <button class="action-square-btn" id="saveVideoBtn" aria-label="Guardar Video">
+          <i data-lucide="bookmark" style="width: 32px; height: 32px; stroke-width: 2.2;"></i>
+        </button>
+      </div>
+
+      <!-- Modal para Elegir Videos Precargados -->
+      <div class="video-picker-modal" id="videoModal">
+        <div class="picker-card">
+          <h3>Selecciona un Video Precargado</h3>
+          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">
+            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 1: Jugada en el Diamante
+          </button>
+          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4">
+            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 2: Entrenamiento y Bateo
+          </button>
+          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4">
+            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 3: Celebración en el Estadio
+          </button>
+          <button class="close-modal-btn" id="closeModalBtn">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Inicio -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 28px; height: 28px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const video = document.getElementById("targetVideo");
+    const videoSource = document.getElementById("videoSource");
+    const swatches = document.querySelectorAll(".filter-swatch");
+    const openPickerBtn = document.getElementById("openPickerBtn");
+    const videoModal = document.getElementById("videoModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const videoOptions = document.querySelectorAll(".video-option-btn");
+    const saveVideoBtn = document.getElementById("saveVideoBtn");
+
+    let currentFilterClass = "filter-warm";
+    video.className = currentFilterClass;
+
+    // Cambiar Filtro en tiempo real al hacer clic en los recuadros
+    swatches.forEach(swatch => {
+      swatch.addEventListener("click", () => {
+        swatches.forEach(s => s.classList.remove("active"));
+        swatch.classList.add("active");
+
+        const selectedFilter = swatch.dataset.filter;
+        video.className = selectedFilter;
+        currentFilterClass = selectedFilter;
+      });
+    });
+
+    // Abrir y cerrar modal de videos precargados
+    openPickerBtn.addEventListener("click", () => {
+      videoModal.style.display = "flex";
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      videoModal.style.display = "none";
+    });
+
+    // Cargar video seleccionado
+    videoOptions.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const newSrc = btn.dataset.src;
+        videoSource.src = newSrc;
+        video.load();
+        video.play();
+        videoModal.style.display = "none";
+      });
+    });
+
+    // Guardar Video Editado (Guarda en localStorage para la Galería)
+    saveVideoBtn.addEventListener("click", () => {
+      const savedItem = {
+        id: Date.now(),
+        videoUrl: videoSource.src,
+        appliedFilter: currentFilterClass,
+        date: new Date().toLocaleDateString()
+      };
+
+      // Guardado local
+      const existing = JSON.parse(localStorage.getItem("strike_gallery") || "[]");
+      existing.push(savedItem);
+      localStorage.setItem("strike_gallery", JSON.stringify(existing));
+
+      // Feedback visual
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      alert("¡Video con filtro guardado exitosamente en tu Galería!");
+    });
+  </script>
+</body>
+</html>

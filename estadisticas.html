@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Estadísticas</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 95px; /* Espacio inferior para no tapar el contenido */
+      position: relative;
+    }
+
+    /* Encabezado */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Tarjeta Principal Amarilla / Naranja */
+    .stats-main-card {
+      width: 100%;
+      flex: 1;
+      background: linear-gradient(180deg, #f7d455 0%, #ed8426 100%);
+      border-radius: 28px;
+      padding: 16px 14px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    /* Banner Superior */
+    .stats-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px 4px;
+    }
+
+    .stats-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stats-banner img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    /* Pestañas para cambiar división */
+    .division-tabs {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.45);
+      border: none;
+      padding: 8px 0;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #111;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: #0b2d64;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Contenedor de la Tabla */
+    .standings-table-container {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Encabezado Azul de la Tabla */
+    .table-header-bar {
+      background-color: #0b2d64;
+      color: #ffffff;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .table-date {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    /* Estructura de la Tabla */
+    table.standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    table.standings-table th {
+      background-color: #f7f9fa;
+      color: #444;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 4px;
+      border-bottom: 2px solid #e1e6ed;
+      border-right: 1px solid #edf0f5;
+    }
+
+    table.standings-table th:first-child {
+      text-align: left;
+      padding-left: 14px;
+    }
+
+    table.standings-table td {
+      padding: 10px 4px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      border-bottom: 1px solid #edf0f5;
+      border-right: 1px solid #edf0f5;
+    }
+
+    table.standings-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.standings-table td:first-child {
+      text-align: left;
+      padding-left: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .team-code {
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Sección de Lineup / Alineación de Bateo */
+    .lineup-preview-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .lineup-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0b2d64;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lineup-list {
+      font-size: 12px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <!-- Encabezado -->
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <!-- Tarjeta Principal de Estadísticas -->
+    <div class="stats-main-card">
+      <div class="stats-banner">
+        <h2>Estadísticas</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png" alt="Gráfica Porcentajes">
+      </div>
+
+      <!-- Selector de Divisiones -->
+      <div class="division-tabs">
+        <button class="tab-btn" onclick="switchDivision('este')">AL Este</button>
+        <button class="tab-btn" onclick="switchDivision('central')">AL Central</button>
+        <button class="tab-btn active" onclick="switchDivision('oeste')">AL Oeste</button>
+      </div>
+
+      <!-- Tabla de Posiciones -->
+      <div class="standings-table-container">
+        <div class="table-header-bar">
+          <span class="table-title" id="divisionTitle">Liga Americana Oeste</span>
+          <span class="table-date">20/07/2026</span>
+        </div>
+
+        <table class="standings-table">
+          <thead>
+            <tr>
+              <th>EQUIPO</th>
+              <th>G</th>
+              <th>P</th>
+              <th>DIF</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Rellenado dinámicamente con JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sección de Alineación / Lineup Típico -->
+      <div class="lineup-preview-card">
+        <div class="lineup-title">
+          <i data-lucide="list-ordered" style="width: 16px; height: 16px;"></i>
+          <span>Lineup Titular Destacado (TEX)</span>
+        </div>
+        <div class="lineup-list">
+          1. Semien (2B) • 2. Seager (SS) • 3. Langford (LF) • 4. García (RF) • 5. Lowe (1B)
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    // Base de datos de equipos de la Liga Americana por división
+    const standingsData = {
+      oeste: [
+        { code: "TEX", name: "Texas Rangers", wins: 50, losses: 49, diff: "-", pct: ".505", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/tex.png&w=60&h=60" },
+        { code: "SEA", name: "Seattle Mariners", wins: 50, losses: 50, diff: "0.5", pct: ".500", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/sea.png&w=60&h=60" },
+        { code: "HOU", name: "Houston Astros", wins: 47, losses: 54, diff: "4.0", pct: ".465", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/hou.png&w=60&h=60" },
+        { code: "ATH", name: "Athletics", wins: 42, losses: 57, diff: "8.0", pct: ".424", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/oak.png&w=60&h=60" },
+        { code: "LAA", name: "LA Angels", wins: 39, losses: 61, diff: "11.5", pct: ".390", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/laa.png&w=60&h=60" }
+      ],
+      este: [
+        { code: "NYY", name: "New York Yankees", wins: 58, losses: 40, diff: "-", pct: ".592", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/nyy.png&w=60&h=60" },
+        { code: "BAL", name: "Baltimore Orioles", wins: 56, losses: 42, diff: "2.0", pct: ".571", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/bal.png&w=60&h=60" },
+        { code: "BOS", name: "Boston Red Sox", wins: 51, losses: 47, diff: "7.0", pct: ".520", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/bos.png&w=60&h=60" },
+        { code: "TB", name: "Tampa Bay Rays", wins: 48, losses: 50, diff: "10.0", pct: ".490", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/tb.png&w=60&h=60" },
+        { code: "TOR", name: "Toronto Blue Jays", wins: 44, losses: 54, diff: "14.0", pct: ".449", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/tor.png&w=60&h=60" }
+      ],
+      central: [
+        { code: "CLE", name: "Cleveland Guardians", wins: 57, losses: 41, diff: "-", pct: ".582", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/cle.png&w=60&h=60" },
+        { code: "MIN", name: "Minnesota Twins", wins: 53, losses: 45, diff: "4.0", pct: ".541", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/min.png&w=60&h=60" },
+        { code: "KC", name: "Kansas City Royals", wins: 52, losses: 47, diff: "5.5", pct: ".525", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/kc.png&w=60&h=60" },
+        { code: "DET", name: "Detroit Tigers", wins: 47, losses: 52, diff: "10.5", pct: ".475", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/det.png&w=60&h=60" },
+        { code: "CWS", name: "Chicago White Sox", wins: 27, losses: 73, diff: "31.0", pct: ".270", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/mlb/500/cws.png&w=60&h=60" }
+      ]
+    };
+
+    function renderTable(divisionKey) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+      const teams = standingsData[divisionKey];
+
+      teams.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <img class="team-logo" src="${t.logo}" alt="${t.name}">
+            <span class="team-code">${t.code}</span>
+          </td>
+          <td>${t.wins}</td>
+          <td>${t.losses}</td>
+          <td>${t.diff}</td>
+          <td>${t.pct}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function switchDivision(divisionKey) {
+      const titles = {
+        oeste: "Liga Americana Oeste",
+        este: "Liga Americana Este",
+        central: "Liga Americana Central"
+      };
+
+      document.getElementById("divisionTitle").textContent = titles[divisionKey];
+      
+      const buttons = document.querySelectorAll(".tab-btn");
+      buttons.forEach(b => b.classList.remove("active"));
+      event.target.classList.add("active");
+
+      renderTable(divisionKey);
+    }
+
+    // Carga inicial (Oeste)
+    renderTable("oeste");
+  </script>
+</body>
+</html>

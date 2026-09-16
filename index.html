@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone</title>
+  <!-- Iconos de Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* Contenedor principal con scroll vertical */
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      padding: 20px 18px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Barra Superior */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 2px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    /* Título Principal */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Barra de Búsqueda */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 48px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Lista de Categorías */
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-radius: 24px;
+      text-decoration: none;
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.12s ease;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+    }
+
+    .card-title {
+      font-family: Georgia, serif;
+      font-size: 19px;
+      font-weight: bold;
+      color: #111;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      max-width: 58%;
+      line-height: 1.2;
+    }
+
+    .card-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    /* Colores en Degradado de cada Botón */
+    .card-ar {
+      background: linear-gradient(90deg, #9bc472 0%, #3e7b52 100%);
+    }
+
+    .card-trivia {
+      background: linear-gradient(90deg, #53a7e8 0%, #3c65c4 100%);
+    }
+
+    .card-filtros {
+      background: linear-gradient(90deg, #d880bc 0%, #9e5ba8 100%);
+    }
+
+    .card-estadisticas {
+      background: linear-gradient(90deg, #f7ce55 0%, #e88b35 100%);
+    }
+
+    .card-gamezone {
+      background: linear-gradient(90deg, #e85375 0%, #832791 100%);
+    }
+
+    .card-wiki {
+      background: linear-gradient(90deg, #1865e2 0%, #00b4d8 100%);
+    }
+
+    .card-galeria {
+      background: linear-gradient(90deg, #f7d455 0%, #ed8426 100%);
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <!-- Barra Superior -->
+    <header class="top-bar">
+      <a href="ajustes.html" class="icon-btn" aria-label="Ajustes">
+        <i data-lucide="settings" style="width: 28px; height: 28px;"></i>
+      </a>
+      <a href="perfil.html" class="icon-btn" aria-label="Perfil">
+        <i data-lucide="user-circle-2" style="width: 32px; height: 32px;"></i>
+      </a>
+    </header>
+
+    <!-- Título -->
+    <div class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </div>
+
+    <!-- Buscador -->
+    <div class="search-wrapper">
+      <i data-lucide="search" style="width: 20px; height: 20px;"></i>
+      <input type="text" class="search-input" placeholder="Search">
+    </div>
+
+    <!-- Lista de todas las categorías con enlaces -->
+    <section class="category-list">
+      <a href="realidad-aumentada.html" class="card card-ar">
+        <span class="card-title">Realidad Aumentada</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/33/33736.png" alt="Pelota de Béisbol">
+      </a>
+
+      <a href="trivia.html" class="card card-trivia">
+        <span class="card-title">Trivia</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/5691/5691719.png" alt="Trivia">
+      </a>
+
+      <a href="filtros.html" class="card card-filtros">
+        <span class="card-title">Filtros</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/4406/4406319.png" alt="Cámara Filtros">
+      </a>
+
+      <a href="estadisticas.html" class="card card-estadisticas">
+        <span class="card-title">Estadísticas</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png" alt="Estadísticas">
+      </a>
+
+      <a href="game-zone.html" class="card card-gamezone">
+        <span class="card-title">Game Zone</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/4275/4275330.png" alt="Consola Retro">
+      </a>
+
+      <a href="wiki.html" class="card card-wiki">
+        <span class="card-title">Wiki</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/29/29302.png" alt="Libro Abierto">
+      </a>
+
+      <a href="galeria.html" class="card card-galeria">
+        <span class="card-title">Galería</span>
+        <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/1375/1375106.png" alt="Galería Fotos">
+      </a>
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

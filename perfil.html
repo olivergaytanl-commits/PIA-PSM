@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Perfil</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Confetti para feedback -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #eef5fc 0%, #a8cbf0 55%, #8cb9e8 100%);
+      padding: 24px 20px 95px; /* Espacio inferior para no tapar el contenido */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Encabezado */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Tarjeta de Rango Discord Obtenido en Game Zone */
+    .gamer-rank-badge {
+      width: 100%;
+      background: #2b2d31;
+      border-radius: 18px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .rank-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .rank-label {
+      font-size: 10px;
+      color: #949ba4;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rank-title-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rank-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .rank-score {
+      font-size: 13px;
+      font-weight: 800;
+      color: #f7ce55;
+      text-align: right;
+    }
+
+    /* Fila Superior: Avatar y Nombre */
+    .avatar-form-row {
+      width: 100%;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .avatar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      width: 120px;
+    }
+
+    .avatar-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: #d8c39d;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border: 3px solid #ffffff;
+      position: relative;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .change-photo-btn {
+      background: #ffffff;
+      color: #111;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.15;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    /* Campos de Entrada */
+    .top-fields {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .input-field-group label {
+      font-size: 14px;
+      color: #111;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .pill-input, .pill-select {
+      width: 100%;
+      height: 42px;
+      background: #ffffff;
+      border: none;
+      border-radius: 25px;
+      padding: 0 16px;
+      font-size: 14px;
+      color: #111;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    }
+
+    .full-fields-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Insignias / Logros */
+    .badges-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .badges-card h3 {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #1e52ba;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badges-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .badge-icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .badge-icon-item img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    /* Botón Guardar */
+    .save-profile-btn {
+      width: 100%;
+      height: 44px;
+      background: #1865e2;
+      color: #ffffff;
+      border: none;
+      border-radius: 25px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(24, 101, 226, 0.3);
+      transition: transform 0.12s ease;
+      margin-top: 4px;
+    }
+
+    .save-profile-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Botón Cerrar Cuenta */
+    .logout-btn {
+      background: #ffffff;
+      color: #111;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      margin-top: 6px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <!-- Encabezado -->
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <!-- Tarjeta Dinámica de Rango / Récord de Game Zone -->
+    <div class="gamer-rank-badge">
+      <div class="rank-left">
+        <span class="rank-label">Rango Strike Zone</span>
+        <div class="rank-title-box">
+          <span class="rank-dot" id="rankDot" style="background-color: #8d99ae;"></span>
+          <span id="rankTitle">Novato del Banquillo</span>
+        </div>
+      </div>
+      <div class="rank-score">
+        Top Score<br><span id="rankScoreNum">0</span> pts
+      </div>
+    </div>
+
+    <!-- Fila Superior: Foto de Perfil y Nombres -->
+    <div class="avatar-form-row">
+      <div class="avatar-wrapper">
+        <div class="avatar-circle">
+          <img id="avatarImage" class="avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=StrikeZone" alt="Avatar">
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        <button class="change-photo-btn" onclick="document.getElementById('fileInput').click()">
+          cambiar foto<br>de perfil
+        </button>
+      </div>
+
+      <div class="top-fields">
+        <div class="input-field-group">
+          <label>name:</label>
+          <input type="text" id="profName" class="pill-input" placeholder="Nombre">
+        </div>
+
+        <div class="input-field-group">
+          <label>apellido(s):</label>
+          <input type="text" id="profLastName" class="pill-input" placeholder="Apellidos">
+        </div>
+      </div>
+    </div>
+
+    <!-- Resto de Campos del Formulario -->
+    <div class="full-fields-list">
+      <div class="input-field-group">
+        <label>fecha de nacimiento:</label>
+        <input type="date" id="profBirth" class="pill-input">
+      </div>
+
+      <div class="input-field-group">
+        <label>numero de telefono:</label>
+        <input type="tel" id="profPhone" class="pill-input" placeholder="+52 ...">
+      </div>
+
+      <div class="input-field-group">
+        <label>correo electronico:</label>
+        <input type="email" id="profEmail" class="pill-input" placeholder="usuario@correo.com">
+      </div>
+
+      <!-- Equipo Favorito de la Liga Americana -->
+      <div class="input-field-group">
+        <label>equipo favorito (AL):</label>
+        <select id="profTeam" class="pill-select">
+          <option value="Yankees">New York Yankees</option>
+          <option value="Red Sox">Boston Red Sox</option>
+          <option value="Astros">Houston Astros</option>
+          <option value="Rangers">Texas Rangers</option>
+          <option value="Mariners">Seattle Mariners</option>
+          <option value="Athletics">Oakland Athletics</option>
+          <option value="Angels">Los Angeles Angels</option>
+          <option value="Orioles">Baltimore Orioles</option>
+          <option value="Blue Jays">Toronto Blue Jays</option>
+          <option value="Guardians">Cleveland Guardians</option>
+        </select>
+      </div>
+
+      <!-- Logros y Medallas Desbloqueadas -->
+      <div class="badges-card">
+        <h3><i data-lucide="award" style="width: 16px; height: 16px;"></i> Medallas Desbloqueadas</h3>
+        <div class="badges-row">
+          <div class="badge-icon-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/3112/3112946.png" alt="Trofeo">
+            <span>Bateador</span>
+          </div>
+          <div class="badge-icon-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/5691/5691719.png" alt="Trivia">
+            <span>Sabio MLB</span>
+          </div>
+          <div class="badge-icon-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/4406/4406319.png" alt="Filtros">
+            <span>Creador</span>
+          </div>
+          <div class="badge-icon-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/1046/1046774.png" alt="Bate">
+            <span>Slugger</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón para Guardar Cambios -->
+      <button class="save-profile-btn" id="saveProfileBtn">Guardar Información</button>
+    </div>
+
+    <!-- Botón Cerrar Cuenta / Sesión -->
+    <a href="login.html" class="logout-btn">cerrar cuenta</a>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    // 1. Cargar Rol y Récord de Game Zone
+    const ranks = [
+      { min: 0, name: "Novato del Banquillo", color: "#8d99ae" },
+      { min: 100, name: "Bateador Titular", color: "#2ec4b6" },
+      { min: 250, name: "All-Star MVP", color: "#3a86ff" },
+      { min: 450, name: "Leyenda del Diamante", color: "#ff006e" }
+    ];
+
+    const hs = parseInt(localStorage.getItem("strike_hr_derby_hs") || localStorage.getItem("strike_snake_highscore") || "0");
+    document.getElementById("rankScoreNum").textContent = hs;
+
+    let currentRank = ranks[0];
+    for (let r of ranks) {
+      if (hs >= r.min) currentRank = r;
+    }
+    document.getElementById("rankTitle").textContent = currentRank.name;
+    document.getElementById("rankTitle").style.color = currentRank.color;
+    document.getElementById("rankDot").style.backgroundColor = currentRank.color;
+
+    // 2. Cargar Datos Guardados del Perfil
+    const savedData = JSON.parse(localStorage.getItem("strike_profile") || "{}");
+    if (savedData.name) document.getElementById("profName").value = savedData.name;
+    if (savedData.lastName) document.getElementById("profLastName").value = savedData.lastName;
+    if (savedData.birth) document.getElementById("profBirth").value = savedData.birth;
+    if (savedData.phone) document.getElementById("profPhone").value = savedData.phone;
+    if (savedData.email) document.getElementById("profEmail").value = savedData.email;
+    if (savedData.team) document.getElementById("profTeam").value = savedData.team;
+    if (savedData.avatar) document.getElementById("avatarImage").src = savedData.avatar;
+
+    // 3. Cambiar Foto de Perfil
+    document.getElementById("fileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imgUrl = event.target.result;
+          document.getElementById("avatarImage").src = imgUrl;
+          savedData.avatar = imgUrl;
+          localStorage.setItem("strike_profile", JSON.stringify(savedData));
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 4. Guardar Toda la Información
+    document.getElementById("saveProfileBtn").addEventListener("click", () => {
+      const dataToSave = {
+        name: document.getElementById("profName").value,
+        lastName: document.getElementById("profLastName").value,
+        birth: document.getElementById("profBirth").value,
+        phone: document.getElementById("profPhone").value,
+        email: document.getElementById("profEmail").value,
+        team: document.getElementById("profTeam").value,
+        avatar: document.getElementById("avatarImage").src
+      };
+
+      localStorage.setItem("strike_profile", JSON.stringify(dataToSave));
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      alert("¡Perfil actualizado con éxito!");
+    });
+  </script>
+</body>
+</html>

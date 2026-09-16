@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Información del Equipo</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      padding: 18px 16px 95px; /* Espacio inferior para no tapar contenido */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    .top-nav {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .back-btn {
+      background: #ffffff;
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .profile-card {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .team-avatar {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    .team-title {
+      font-size: 23px;
+      font-weight: 900;
+      color: #0b2d64;
+      text-transform: uppercase;
+    }
+
+    .badge-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pill {
+      background: #eef3fb;
+      color: #1865e2;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .info-section {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+
+    .info-heading {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1865e2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .info-text {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .facts-list {
+      padding-left: 18px;
+      font-size: 13.5px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <nav class="top-nav">
+      <a href="wiki.html" class="back-btn" aria-label="Volver">
+        <i data-lucide="arrow-left" style="width: 22px; height: 22px;"></i>
+      </a>
+      <div class="header-title">
+        <span>Strike Zone</span> ⚾
+      </div>
+      <div style="width: 42px;"></div>
+    </nav>
+
+    <div class="profile-card">
+      <img id="teamLogo" class="team-avatar" src="" alt="Logo">
+      <h2 id="teamName" class="team-title">Cargando...</h2>
+      <div class="badge-pills">
+        <span class="pill" id="teamFounded">Fundación: ----</span>
+        <span class="pill" id="teamTitles">Series Mundiales: --</span>
+        <span class="pill" id="teamStadium">Estadio: ----</span>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-heading">
+        <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+        <span>Historia y Origen</span>
+      </div>
+      <p class="info-text" id="teamHistory">Cargando historia...</p>
+    </div>
+
+    <div class="info-section">
+      <div class="info-heading">
+        <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+        <span>Datos Curiosos</span>
+      </div>
+      <ul class="facts-list" id="teamFacts"></ul>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const teamsWiki = {
+      yankees: {
+        name: "New York Yankees",
+        logo: "https://www.mlbstatic.com/team-logos/147.svg",
+        founded: "1903",
+        titles: "27 Campeonatos",
+        stadium: "Yankee Stadium (Bronx, NY)",
+        history: "Es la franquicia más laureada en la historia del deporte profesional norteamericano. Conocidos como los 'Bombarderos del Bronx', han tenido en sus filas a leyendas históricas como Babe Ruth, Lou Gehrig, Joe DiMaggio, Mickey Mantle y Derek Jeter.",
+        facts: [
+          "Récord absoluto con 27 títulos de Serie Mundial.",
+          "Primer equipo en la historia en portar números en los dorsales de sus uniformes.",
+          "El icónico logotipo 'NY' entrelazado fue diseñado originalmente por Tiffany & Co. en 1877."
+        ]
+      },
+      athletics: {
+        name: "Oakland Athletics",
+        logo: "https://www.mlbstatic.com/team-logos/133.svg",
+        founded: "1901",
+        titles: "9 Campeonatos",
+        stadium: "Oakland Coliseum",
+        history: "Fundados en Filadelfia antes de trasladarse a Kansas City y luego a Oakland. Revolucionaron el deporte y la sabermetría a inicios de los 2000 con la filosofía 'Moneyball' bajo el mando de Billy Beane.",
+        facts: [
+          "Ganaron 3 Series Mundiales consecutivas entre 1972 y 1974.",
+          "Su mascota es el elefante 'Stomper', inspirado en una burla histórica de John McGraw.",
+          "Ostentan una histórica racha de 20 victorias consecutivas en la temporada 2002."
+        ]
+      },
+      mariners: {
+        name: "Seattle Mariners",
+        logo: "https://www.mlbstatic.com/team-logos/136.svg",
+        founded: "1977",
+        titles: "0 Campeonatos",
+        stadium: "T-Mobile Park (Seattle, WA)",
+        history: "Franquicia insignia del noroeste del Pacífico. En las décadas de 1990 y 2000 vivieron su época dorada impulsada por superestrellas mundiales como Ken Griffey Jr., Randy Johnson, Alex Rodriguez e Ichiro Suzuki.",
+        facts: [
+          "Comparten el récord histórico de más victorias en una sola temporada regular (116 victorias en 2001).",
+          "Ichiro Suzuki impuso con este equipo el récord histórico de 262 hits en 2004.",
+          "El color verde azulado 'Northwest Green' fue adoptado en 1993 como su identidad oficial."
+        ]
+      },
+      redsox: {
+        name: "Boston Red Sox",
+        logo: "https://www.mlbstatic.com/team-logos/111.svg",
+        founded: "1901",
+        titles: "9 Campeonatos",
+        stadium: "Fenway Park (Boston, MA)",
+        history: "Uno de los miembros fundadores de la Liga Americana. Tras 86 años de sequía conocida como 'La Maldición del Bambino', rompieron la racha en 2004 y son de las franquicias más ganadoras del siglo XXI.",
+        facts: [
+          "Fenway Park es el estadio activo más antiguo de Grandes Ligas (abierto en 1912).",
+          "Su famosa barda verde del jardín izquierdo se conoce mundialmente como 'El Monstruo Verde' (Green Monster).",
+          "Mantienen la mayor rivalidad deportiva de Norteamérica contra los Yankees."
+        ]
+      },
+      astros: {
+        name: "Houston Astros",
+        logo: "https://www.mlbstatic.com/team-logos/117.svg",
+        founded: "1962",
+        titles: "2 Campeonatos",
+        stadium: "Minute Maid Park (Houston, TX)",
+        history: "Llamados inicialmente Colt .45s, cambiaron su nombre a Astros en homenaje al programa espacial de la NASA con sede en Houston. Han sido protagonistas y contendientes dominantes en la última década.",
+        facts: [
+          "Primer equipo en jugar bajo techo en el histórico domo Astrodome en 1965.",
+          "Única franquicia en ganar campeonatos de liga tanto en la Liga Nacional como en la Americana.",
+          "Cuentan con un tren clásico sobre las vías del jardín izquierdo que suena tras cada cuadrangular."
+        ]
+      },
+      rangers: {
+        name: "Texas Rangers",
+        logo: "https://www.mlbstatic.com/team-logos/140.svg",
+        founded: "1961",
+        titles: "1 Campeonato (2023)",
+        stadium: "Globe Life Field (Arlington, TX)",
+        history: "Nacieron como los Washington Senators antes de mudarse a Texas en 1972. Tras décadas de perseverancia y dos subcampeonatos en 2010 y 2011, lograron coronarse campeones de la Serie Mundial en 2023.",
+        facts: [
+          "El legendario lanzador Nolan Ryan lanzó dos de sus 7 juegos sin hit con este uniforme.",
+          "Su estadio climatizado cuenta con uno de los techos retráctiles más grandes del mundo.",
+          "El ex-presidente George W. Bush fue copropietario del equipo antes de llegar a la presidencia."
+        ]
+      },
+      angels: {
+        name: "Los Angeles Angels",
+        logo: "https://www.mlbstatic.com/team-logos/108.svg",
+        founded: "1961",
+        titles: "1 Campeonato (2002)",
+        stadium: "Angel Stadium (Anaheim, CA)",
+        history: "Fundados por el legendario actor y cantante de country Gene Autry. Han sido el hogar de dos de los mayores talentos generacionales del béisbol moderno: Mike Trout y Shohei Ohtani.",
+        facts: [
+          "Ganaron la Serie Mundial de 2002 impulsados por el famoso fenómeno de la 'Rally Monkey'.",
+          "Su estadio cuenta con una formación de rocas y géiseres de agua real en los jardines centrales.",
+          "Shohei Ohtani ganó dos premios MVP unánimes jugando como bateador y lanzador para este equipo."
+        ]
+      },
+      orioles: {
+        name: "Baltimore Orioles",
+        logo: "https://www.mlbstatic.com/team-logos/110.svg",
+        founded: "1901",
+        titles: "3 Campeonatos",
+        stadium: "Camden Yards (Baltimore, MD)",
+        history: "Iniciaron como los Milwaukee Brewers y St. Louis Browns antes de llegar a Baltimore en 1954. Fueron una de las dinastías más sólidas entre los años 60 y 80 bajo la dirección de Earl Weaver.",
+        facts: [
+          "Cal Ripken Jr. jugó 2,632 partidos consecutivos con este equipo, el récord más irrompible del béisbol.",
+          "Su estadio Camden Yards (1992) revolucionó la arquitectura de todos los parques modernos de MLB.",
+          "El nombre del equipo y su mascota hacen honor al ave oficial del estado de Maryland (el turpial oriol)."
+        ]
+      },
+      bluejays: {
+        name: "Toronto Blue Jays",
+        logo: "https://www.mlbstatic.com/team-logos/141.svg",
+        founded: "1977",
+        titles: "2 Campeonatos",
+        stadium: "Rogers Centre (Toronto, Canadá)",
+        history: "Es la única franquicia activa de Grandes Ligas ubicada fuera de Estados Unidos. Lograron un histórico bicampeonato consecutivo de Serie Mundial en los años 1992 y 1993.",
+        facts: [
+          "Joe Carter conectó un memorable Home Run de oro en 1993 para ganar la Serie Mundial en la 9ª entrada.",
+          "Su estadio fue el primero en el mundo con un techo completamente motorizado y retráctil (1989).",
+          "Toda la nación de Canadá los apoya como el equipo representativo de béisbol del país."
+        ]
+      },
+      guardians: {
+        name: "Cleveland Guardians",
+        logo: "https://www.mlbstatic.com/team-logos/114.svg",
+        founded: "1901",
+        titles: "2 Campeonatos",
+        stadium: "Progressive Field (Cleveland, OH)",
+        history: "Conocidos anteriormente como los Indios de Cleveland, adoptaron el nombre 'Guardians' en 2022 inspirados en los icónicos pilares del puente 'Guardians of Traffic' situados cerca de su estadio.",
+        facts: [
+          "En 2017 impusieron la segunda racha de victorias más larga en la historia de MLB con 22 triunfos al hilo.",
+          "El legendario lanzador Bob Feller debutó con ellos a los 17 años y lanzó una recta medida a más de 100 mph.",
+          "Entre 1995 y 2001 vendieron absolutamente todas las entradas durante 455 partidos seguidos."
+        ]
+      }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedTeamKey = urlParams.get("team") || "yankees";
+    const data = teamsWiki[selectedTeamKey] || teamsWiki["yankees"];
+
+    document.getElementById("teamLogo").src = data.logo;
+    document.getElementById("teamName").textContent = data.name;
+    document.getElementById("teamFounded").textContent = `Fundación: ${data.founded}`;
+    document.getElementById("teamTitles").textContent = `Títulos: ${data.titles}`;
+    document.getElementById("teamStadium").textContent = data.stadium;
+    document.getElementById("teamHistory").textContent = data.history;
+
+    const factsList = document.getElementById("teamFacts");
+    factsList.innerHTML = "";
+    data.facts.forEach(fact => {
+      const li = document.createElement("li");
+      li.textContent = fact;
+      li.style.marginBottom = "6px";
+      factsList.appendChild(li);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Wiki</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 95px; /* Espacio libre para el botón fijo */
+      position: relative;
+    }
+
+    /* Encabezado */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Tarjeta Principal Azul / Cyan */
+    .wiki-main-card {
+      width: 100%;
+      background: linear-gradient(180deg, #1865e2 0%, #00b4d8 100%);
+      border-radius: 28px;
+      padding: 16px 14px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    /* Banner Superior */
+    .wiki-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px 4px;
+    }
+
+    .wiki-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .wiki-banner img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    /* Lista de Tarjetas de Equipos */
+    .teams-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .team-card {
+      background: #a9d4df;
+      border-radius: 36px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+      transition: transform 0.12s ease, background 0.15s ease;
+      min-height: 90px;
+    }
+
+    .team-card:active {
+      transform: scale(0.97);
+      background: #9bc8d4;
+    }
+
+    .team-card.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .logo-badge {
+      width: 68px;
+      height: 68px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+      padding: 6px;
+    }
+
+    .logo-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .team-name {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
+      flex: 1;
+      padding: 0 10px;
+      line-height: 1.2;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <div class="wiki-main-card">
+      <div class="wiki-banner">
+        <h2>Wiki</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/29/29302.png" alt="Libro Wiki">
+      </div>
+
+      <section class="teams-list">
+        <!-- 1. Yankees -->
+        <a href="equipo-detalle.html?team=yankees" class="team-card">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/147.svg" alt="New York Yankees">
+          </div>
+          <span class="team-name">Yankees</span>
+        </a>
+
+        <!-- 2. Athletics -->
+        <a href="equipo-detalle.html?team=athletics" class="team-card reverse">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/133.svg" alt="Oakland Athletics">
+          </div>
+          <span class="team-name">Oakland<br>Athletics</span>
+        </a>
+
+        <!-- 3. Seattle Mariners -->
+        <a href="equipo-detalle.html?team=mariners" class="team-card">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/136.svg" alt="Seattle Mariners">
+          </div>
+          <span class="team-name">Seattle<br>Mariners</span>
+        </a>
+
+        <!-- 4. Boston Red Sox -->
+        <a href="equipo-detalle.html?team=redsox" class="team-card reverse">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/111.svg" alt="Boston Red Sox">
+          </div>
+          <span class="team-name">Boston<br>Red Sox</span>
+        </a>
+
+        <!-- 5. Houston Astros -->
+        <a href="equipo-detalle.html?team=astros" class="team-card">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/117.svg" alt="Houston Astros">
+          </div>
+          <span class="team-name">Houston<br>Astros</span>
+        </a>
+
+        <!-- 6. Texas Rangers -->
+        <a href="equipo-detalle.html?team=rangers" class="team-card reverse">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/140.svg" alt="Texas Rangers">
+          </div>
+          <span class="team-name">Texas<br>Rangers</span>
+        </a>
+
+        <!-- 7. Los Angeles Angels -->
+        <a href="equipo-detalle.html?team=angels" class="team-card">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/108.svg" alt="Los Angeles Angels">
+          </div>
+          <span class="team-name">LA<br>Angels</span>
+        </a>
+
+        <!-- 8. Baltimore Orioles -->
+        <a href="equipo-detalle.html?team=orioles" class="team-card reverse">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/110.svg" alt="Baltimore Orioles">
+          </div>
+          <span class="team-name">Baltimore<br>Orioles</span>
+        </a>
+
+        <!-- 9. Toronto Blue Jays -->
+        <a href="equipo-detalle.html?team=bluejays" class="team-card">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/141.svg" alt="Toronto Blue Jays">
+          </div>
+          <span class="team-name">Toronto<br>Blue Jays</span>
+        </a>
+
+        <!-- 10. Cleveland Guardians -->
+        <a href="equipo-detalle.html?team=guardians" class="team-card reverse">
+          <div class="logo-badge">
+            <img src="https://www.mlbstatic.com/team-logos/114.svg" alt="Cleveland Guardians">
+          </div>
+          <span class="team-name">Cleveland<br>Guardians</span>
+        </a>
+      </section>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

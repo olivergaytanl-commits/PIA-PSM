@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Pro Derby Arcade</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 95px; /* Espacio libre para el botón fijo */
+      position: relative;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .game-main-card {
+      width: 100%;
+      flex: 1;
+      background: linear-gradient(180deg, #e85375 0%, #832791 100%);
+      border-radius: 28px;
+      padding: 14px 14px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    .game-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+    }
+
+    .game-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .game-banner img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
+    .discord-badge-card {
+      width: 100%;
+      background: #2b2d31;
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .badge-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .badge-label {
+      font-size: 10px;
+      color: #949ba4;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .role-pill {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .role-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .score-record {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f7ce55;
+    }
+
+    .retro-screen {
+      width: 100%;
+      height: 310px;
+      background-color: #8bb713;
+      border: 6px solid #111;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+      font-family: 'VT323', monospace;
+    }
+
+    .retro-screen.shake {
+      animation: screenShake 0.25s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes screenShake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(3px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+      40%, 60% { transform: translate3d(3px, 0, 0); }
+    }
+
+    .screen-header {
+      color: #111;
+      font-size: 19px;
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 8px;
+      border-bottom: 2px dashed #111;
+      background-color: #8bb713;
+      z-index: 1;
+    }
+
+    canvas#gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background-color: #8bb713;
+    }
+
+    .retro-menu-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #8bb713;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 16px;
+      color: #111;
+      z-index: 2;
+    }
+
+    .retro-menu-overlay h3 {
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 2px;
+      border-bottom: 2px solid #111;
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+
+    .menu-options {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 24px;
+    }
+
+    .menu-options li {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .menu-options li:hover {
+      background: rgba(0, 0, 0, 0.15);
+      text-decoration: underline;
+    }
+
+    .controls-panel {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .bat-action-btn {
+      width: 100%;
+      background: #ffffff;
+      border: 3px solid #111;
+      border-radius: 18px;
+      padding: 14px 20px;
+      font-size: 18px;
+      font-weight: 900;
+      color: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .bat-action-btn:active {
+      transform: scale(0.96);
+      background: #f0f2f5;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <div class="game-main-card">
+      <div class="game-banner">
+        <h2>Game Zone</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/4275/4275330.png" alt="Consola Retro">
+      </div>
+
+      <div class="discord-badge-card">
+        <div class="badge-info">
+          <span class="badge-label">Tu Rol Discord</span>
+          <div class="role-pill">
+            <span class="role-dot" id="roleDot" style="background-color: #8d99ae;"></span>
+            <span id="roleName">Novato del Banquillo</span>
+          </div>
+        </div>
+        <div class="score-record">
+          Récord: <span id="highScoreText">0</span> pts
+        </div>
+      </div>
+
+      <div class="retro-screen" id="screenBox">
+        <div class="screen-header">
+          <span>LVL: <span id="lvlCounter">1</span></span>
+          <span>OUTS: <span id="outCounter">0/3</span></span>
+          <span>SCORE: <span id="currentScore">0</span></span>
+        </div>
+
+        <canvas id="gameCanvas" width="300" height="260"></canvas>
+
+        <div class="retro-menu-overlay" id="menuOverlay">
+          <h3>HOME RUN DERBY</h3>
+          <ul class="menu-options">
+            <li id="startBtn">▶ Empezar Partido</li>
+            <li>• Comienza fácil y acelera</li>
+            <li>• Conecta en la franja roja</li>
+            <li style="margin-top: 10px; font-size: 20px; border-top: 1px dashed #111; padding-top: 6px;">
+              Top Score: <span id="menuHighScore">0</span> pts
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="controls-panel">
+        <button class="bat-action-btn" id="swingBtn">
+          <i data-lucide="zap" style="width: 22px; height: 22px; fill: #111;"></i>
+          <span>¡SWING / BATEAR!</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const ranks = [
+      { min: 0, name: "Novato del Banquillo", color: "#8d99ae" },
+      { min: 100, name: "Bateador Titular", color: "#2ec4b6" },
+      { min: 250, name: "All-Star MVP", color: "#3a86ff" },
+      { min: 450, name: "Leyenda del Diamante", color: "#ff006e" }
+    ];
+
+    let highScore = parseInt(localStorage.getItem("strike_hr_derby_hs") || "0");
+    document.getElementById("highScoreText").textContent = highScore;
+    document.getElementById("menuHighScore").textContent = highScore;
+
+    function updateRankBadge(scoreToCheck) {
+      let currentRank = ranks[0];
+      for (let r of ranks) {
+        if (scoreToCheck >= r.min) currentRank = r;
+      }
+      const roleName = document.getElementById("roleName");
+      const roleDot = document.getElementById("roleDot");
+      roleName.textContent = currentRank.name;
+      roleDot.style.backgroundColor = currentRank.color;
+      roleName.style.color = currentRank.color;
+    }
+    updateRankBadge(highScore);
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const screenBox = document.getElementById("screenBox");
+    const menuOverlay = document.getElementById("menuOverlay");
+
+    let isPlaying = false;
+    let score = 0;
+    let outs = 0;
+    let level = 1;
+    let feedback = "";
+    let distanceText = "";
+    let feedbackTimer = 0;
+
+    let ballState = "WAITING";
+    let ball = { x: 45, y: 150, r: 4, vx: 0, vy: 0 };
+    let swingAngle = 0;
+    let isSwinging = false;
+    let pitchProgress = 0;
+
+    // Configuración de niveles de dificultad progresiva
+    function getLevelConfig(lvl) {
+      switch(lvl) {
+        case 1: // Muy fácil / Lento
+          return { speed: 1.25, sweetStart: 68, sweetWidth: 18, curve: 0 };
+        case 2: // Fácil
+          return { speed: 1.65, sweetStart: 70, sweetWidth: 15, curve: 0 };
+        case 3: // Medio
+          return { speed: 2.1, sweetStart: 72, sweetWidth: 13, curve: 4 };
+        case 4: // Difícil
+          return { speed: 2.65, sweetStart: 74, sweetWidth: 11, curve: 7 };
+        default: // Experto (Nivel 5+)
+          return { speed: 3.2 + (lvl * 0.15), sweetStart: 75, sweetWidth: 9, curve: 10 };
+      }
+    }
+
+    function checkLevelProgression() {
+      const newLevel = Math.floor(score / 70) + 1;
+      if (newLevel !== level) {
+        level = newLevel;
+        document.getElementById("lvlCounter").textContent = level;
+        feedback = `¡NIVEL ${level}! +VELOCIDAD`;
+        feedbackTimer = 50;
+      }
+    }
+
+    function startNewGame() {
+      score = 0;
+      outs = 0;
+      level = 1;
+      document.getElementById("currentScore").textContent = score;
+      document.getElementById("outCounter").textContent = `${outs}/3`;
+      document.getElementById("lvlCounter").textContent = level;
+      menuOverlay.style.display = "none";
+      isPlaying = true;
+      spawnPitch();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function spawnPitch() {
+      ballState = "PITCHING";
+      ball.x = 45;
+      ball.y = 150;
+      ball.r = 4;
+      pitchProgress = 0;
+      isSwinging = false;
+      swingAngle = 0;
+    }
+
+    function triggerScreenShake() {
+      screenBox.classList.remove("shake");
+      void screenBox.offsetWidth;
+      screenBox.classList.add("shake");
+    }
+
+    function swingBat() {
+      if (!isPlaying || ballState !== "PITCHING" || isSwinging) return;
+      isSwinging = true;
+
+      const cfg = getLevelConfig(level);
+      const sweetEnd = cfg.sweetStart + cfg.sweetWidth;
+      const goodMargin = 12;
+
+      if (pitchProgress >= cfg.sweetStart && pitchProgress <= sweetEnd) {
+        // HOME RUN PERFECTO
+        score += 50;
+        const ft = Math.floor(390 + Math.random() * 95);
+        feedback = "¡HOMERUN PERFECTO!";
+        distanceText = `${ft} FT`;
+        ballState = "HIT_FLYING";
+        ball.vx = 4.5 + Math.random() * 2;
+        ball.vy = -7.5;
+        triggerScreenShake();
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      } else if (pitchProgress >= (cfg.sweetStart - goodMargin) && pitchProgress < cfg.sweetStart) {
+        // HIT TEMPRANO
+        score += 20;
+        const ft = Math.floor(240 + Math.random() * 70);
+        feedback = "¡HIT LÍNEA!";
+        distanceText = `${ft} FT`;
+        ballState = "HIT_FLYING";
+        ball.vx = 5;
+        ball.vy = -3.5;
+      } else if (pitchProgress > sweetEnd && pitchProgress <= (sweetEnd + goodMargin)) {
+        // HIT TARDÍO
+        score += 15;
+        const ft = Math.floor(200 + Math.random() * 50);
+        feedback = "¡HIT ELEVADO!";
+        distanceText = `${ft} FT`;
+        ballState = "HIT_FLYING";
+        ball.vx = 3;
+        ball.vy = -5.5;
+      } else {
+        // OUT
+        outs++;
+        feedback = "¡STRIKE / OUT!";
+        distanceText = "";
+        document.getElementById("outCounter").textContent = `${outs}/3`;
+        if (outs >= 3) {
+          endGame();
+          return;
+        }
+        setTimeout(spawnPitch, 900);
+      }
+
+      feedbackTimer = 55;
+      document.getElementById("currentScore").textContent = score;
+      checkLevelProgression();
+      checkHighscore();
+    }
+
+    function checkHighscore() {
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("strike_hr_derby_hs", highScore);
+        document.getElementById("highScoreText").textContent = highScore;
+        document.getElementById("menuHighScore").textContent = highScore;
+        updateRankBadge(highScore);
+      }
+    }
+
+    function endGame() {
+      isPlaying = false;
+      setTimeout(() => {
+        alert(`¡Partida finalizada! Llegaste al Nivel ${level} con ${score} Puntos.`);
+        menuOverlay.style.display = "flex";
+      }, 500);
+    }
+
+    function gameLoop() {
+      if (!isPlaying) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cfg = getLevelConfig(level);
+
+      // Campo y bateador
+      ctx.fillStyle = "#111";
+      ctx.fillRect(20, 140, 24, 30);
+      ctx.fillRect(220, 175, 45, 10);
+      ctx.strokeRect(210, 120, 65, 75);
+
+      // Bateador y Bate
+      ctx.fillStyle = "#111";
+      ctx.fillRect(235, 125, 16, 48);
+
+      ctx.save();
+      ctx.translate(238, 140);
+      if (isSwinging) {
+        swingAngle = Math.min(Math.PI, swingAngle + 0.35);
+        ctx.rotate(-swingAngle);
+      }
+      ctx.fillRect(0, -22, 6, 26);
+      ctx.restore();
+
+      // Barra de Timing Dinámica
+      const barX = 40, barY = 35, barW = 220, barH = 14;
+      ctx.strokeStyle = "#111";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(barX, barY, barW, barH);
+
+      // Zona Sweet Spot según el nivel
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.fillRect(barX + (barW * (cfg.sweetStart / 100)), barY, barW * (cfg.sweetWidth / 100), barH);
+
+      // Cursor
+      const cursorX = barX + (barW * (pitchProgress / 100));
+      ctx.fillStyle = "#111";
+      ctx.fillRect(cursorX - 2, barY - 3, 5, barH + 6);
+
+      // Lógica de lanzamiento
+      if (ballState === "PITCHING") {
+        pitchProgress += cfg.speed;
+        ball.x = 45 + (195 * (pitchProgress / 100));
+        ball.y = 150 + Math.sin(pitchProgress * 0.05) * cfg.curve;
+        ball.r = 4 + (pitchProgress * 0.04);
+
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (pitchProgress >= 100) {
+          outs++;
+          feedback = "¡STRIKE PASS!";
+          distanceText = "";
+          feedbackTimer = 45;
+          document.getElementById("outCounter").textContent = `${outs}/3`;
+          if (outs >= 3) {
+            endGame();
+            return;
+          }
+          spawnPitch();
+        }
+      } else if (ballState === "HIT_FLYING") {
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        ball.vy += 0.22;
+
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, Math.max(3, ball.r), 0, Math.PI * 2);
+        ctx.fill();
+
+        if (ball.y > canvas.height || ball.x > canvas.width) {
+          setTimeout(spawnPitch, 550);
+        }
+      }
+
+      // Feedback
+      if (feedbackTimer > 0) {
+        ctx.font = "24px 'VT323'";
+        ctx.fillText(feedback, 75, 85);
+        if (distanceText) {
+          ctx.font = "28px 'VT323'";
+          ctx.fillText(`🚀 ${distanceText}`, 105, 112);
+        }
+        feedbackTimer--;
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startNewGame);
+    document.getElementById("swingBtn").addEventListener("click", swingBat);
+
+    window.addEventListener("keydown", e => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        swingBat();
+      }
+    });
+  </script>
+</body>
+</html>

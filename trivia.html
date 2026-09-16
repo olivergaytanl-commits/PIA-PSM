@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strike Zone - Trivia</title>
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Confetti para el final -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #b5d5f5;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 16px 95px; /* Espacio libre para el botón fijo */
+      position: relative;
+    }
+
+    /* Encabezado Principal */
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .ball-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    /* Tarjeta Contenedora Azul */
+    .trivia-main-card {
+      width: 100%;
+      background: linear-gradient(180deg, #328beb 0%, #1e52ba 100%);
+      border-radius: 28px;
+      padding: 16px 14px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+
+    /* Banner Superior */
+    .trivia-banner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .trivia-banner h2 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .trivia-banner img {
+      width: 115px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+
+    /* Botón Superior: Comenzar Trivia */
+    .start-btn-card {
+      background: linear-gradient(90deg, #f7d455 0%, #7db9d3 100%);
+      border-radius: 22px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      transition: transform 0.12s ease;
+    }
+
+    .start-btn-card:active {
+      transform: scale(0.98);
+    }
+
+    .start-btn-text {
+      font-family: Georgia, serif;
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #000;
+      text-align: left;
+      line-height: 1.15;
+    }
+
+    .play-circle {
+      width: 52px;
+      height: 52px;
+      background-color: #f7d455;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3b91d8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    /* Barra de Estado / Contador */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 14px;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* Contenedor con efecto BLUR inicial */
+    .questions-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: filter 0.4s ease, opacity 0.4s ease;
+    }
+
+    /* Estado bloqueado / desenfocado */
+    .questions-wrapper.is-blurred {
+      filter: blur(5.5px);
+      opacity: 0.65;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Tarjetas de Pregunta */
+    .question-card {
+      background: linear-gradient(90deg, #f7ce55 0%, #68b4c2 100%);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .question-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      text-align: center;
+    }
+
+    .options-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.45);
+      padding: 6px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      flex: 1;
+      border: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .option-item.selected {
+      background: #ffffff;
+      border-color: #1e52ba;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .letter-badge {
+      font-family: 'Times New Roman', Georgia, serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: 22px;
+      color: #c9184a;
+      line-height: 1;
+      background: #fed136;
+      padding: 2px 6px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .option-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Botón para finalizar */
+    .finish-btn {
+      display: none;
+      background: #f7d455;
+      color: #111;
+      border: none;
+      padding: 16px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      margin-top: 10px;
+    }
+
+    /* Pantalla de Resultados Final */
+    .result-screen {
+      display: none;
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .result-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #1e52ba;
+    }
+
+    .score-badge {
+      font-size: 38px;
+      font-weight: 900;
+      color: #f7931e;
+    }
+
+    .level-desc {
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    /* Botón Home Flotante Fijo */
+    .home-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      width: 56px;
+      height: 56px;
+      background: #3c65c4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      border: 3px solid #ffffff;
+      pointer-events: auto;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .home-btn:active {
+      transform: scale(0.9);
+      background-color: #2b4b9b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="mobile-container">
+    <!-- Encabezado -->
+    <header class="header-title">
+      <h1>Strike Zone</h1>
+      <span class="ball-icon">⚾</span>
+    </header>
+
+    <!-- Tarjeta Principal de Trivia -->
+    <div class="trivia-main-card">
+      <div class="trivia-banner">
+        <h2>Trivia</h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/5691/5691719.png" alt="Did you know?">
+      </div>
+
+      <!-- Botón Comenzar -->
+      <button class="start-btn-card" id="startBtn">
+        <span class="start-btn-text" id="startBtnText">Comenzar<br>Trivia</span>
+        <div class="play-circle">
+          <i data-lucide="play" id="playIcon" style="width: 26px; height: 26px; fill: #3b91d8;"></i>
+        </div>
+      </button>
+
+      <!-- Barra de Estado -->
+      <div class="status-bar">
+        <span id="statusLabel"><i data-lucide="lock" style="width: 14px; height: 14px; vertical-align: middle;"></i> Bloqueado (Presiona comenzar)</span>
+        <span id="answeredCounter">Respondidas: 0 / 75</span>
+      </div>
+
+      <!-- Lista con Blur Inicial de las 75 Preguntas -->
+      <div class="questions-wrapper is-blurred" id="questionsWrapper"></div>
+
+      <!-- Botón para ver resultado -->
+      <button class="finish-btn" id="finishBtn">Ver Resultados</button>
+
+      <!-- Pantalla de Resultados -->
+      <div class="result-screen" id="resultScreen">
+        <h3 class="result-title">¡Evaluación Completada!</h3>
+        <div class="score-badge" id="finalScore">0 / 75</div>
+        <p class="level-desc" id="levelDesc"></p>
+      </div>
+    </div>
+
+    <!-- Botón Inicio Fijo -->
+    <div class="home-container">
+      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+        <i data-lucide="home" style="width: 26px; height: 26px;"></i>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    // Plantillas de preguntas de Béisbol
+    const baseQuestions = [
+      { q: "¿Cuántos strikes componen un out por ponche?", a: "qwert", b: "3 strikes", c: "qwert", correct: 1 },
+      { q: "¿Cuántas entradas regulares se juegan en Grandes Ligas?", a: "9 entradas", b: "qwert", c: "qwert", correct: 0 },
+      { q: "¿Qué jugada produce 4 carreras con un solo batazo?", a: "qwert", b: "Grand Slam", c: "qwert", correct: 1 },
+      { q: "¿Cuántos jugadores a la defensiva están en el campo?", a: "qwert", b: "qwert", c: "9 jugadores", correct: 2 },
+      { q: "¿Qué distancia existe entre cada una de las bases?", a: "90 pies", b: "qwert", c: "qwert", correct: 0 }
+    ];
+
+    const totalQuestions = 75;
+    const questionsWrapper = document.getElementById("questionsWrapper");
+    const startBtn = document.getElementById("startBtn");
+    const statusLabel = document.getElementById("statusLabel");
+    const answeredCounter = document.getElementById("answeredCounter");
+    const finishBtn = document.getElementById("finishBtn");
+    const resultScreen = document.getElementById("resultScreen");
+
+    let answeredCount = 0;
+    let score = 0;
+
+    // Generar las 75 tarjetas en lista continua
+    for (let i = 1; i <= totalQuestions; i++) {
+      const template = baseQuestions[(i - 1) % baseQuestions.length];
+      const card = document.createElement("div");
+      card.className = "question-card";
+
+      card.innerHTML = `
+        <div class="question-text">¿Pregunta ${i}: Abcdef ghijklmn?</div>
+        <div class="options-row">
+          <div class="option-item" data-opt="0">
+            <span class="letter-badge">a</span>
+            <span class="option-label">${template.a}</span>
+          </div>
+          <div class="option-item" data-opt="1">
+            <span class="letter-badge">b</span>
+            <span class="option-label">${template.b}</span>
+          </div>
+          <div class="option-item" data-opt="2">
+            <span class="letter-badge">c</span>
+            <span class="option-label">${template.c}</span>
+          </div>
+        </div>
+      `;
+
+      // Selección de respuestas
+      const options = card.querySelectorAll(".option-item");
+      options.forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (!card.dataset.selected) {
+            answeredCount++;
+            answeredCounter.textContent = `Respondidas: ${answeredCount} / ${totalQuestions}`;
+          }
+
+          options.forEach(el => el.classList.remove("selected"));
+          btn.classList.add("selected");
+          card.dataset.selected = "true";
+
+          const chosen = parseInt(btn.dataset.opt);
+          if (chosen === template.correct) {
+            score++;
+          }
+
+          if (answeredCount >= totalQuestions) {
+            finishBtn.style.display = "block";
+          }
+        });
+      });
+
+      questionsWrapper.appendChild(card);
+    }
+
+    // Quitar BLUR al hacer click en el botón Comenzar
+    startBtn.addEventListener("click", () => {
+      questionsWrapper.classList.remove("is-blurred");
+      statusLabel.innerHTML = `<i data-lucide="unlock" style="width: 14px; height: 14px; vertical-align: middle;"></i> Trivia Habilitada`;
+      startBtn.style.opacity = "0.7";
+      startBtn.style.pointerEvents = "none";
+      finishBtn.style.display = "block";
+      lucide.createIcons();
+
+      // Desplazamiento suave hacia la primera pregunta
+      questionsWrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    // Calcular y mostrar resultados
+    finishBtn.addEventListener("click", () => {
+      resultScreen.style.display = "flex";
+      document.getElementById("finalScore").textContent = `${score} / ${totalQuestions}`;
+
+      const levelDesc = document.getElementById("levelDesc");
+      const percentage = (score / totalQuestions) * 100;
+
+      if (percentage >= 80) {
+        levelDesc.textContent = "🏆 ¡Nivel Salón de la Fama! Tienes un conocimiento legendario de béisbol.";
+      } else if (percentage >= 50) {
+        levelDesc.textContent = "⚾ ¡Nivel Profesional! Conoces muy bien las reglas y jugadas clave.";
+      } else {
+        levelDesc.textContent = "🧢 ¡Nivel Novato! Sigue aprendiendo y disfrutando de los partidos.";
+      }
+
+      resultScreen.scrollIntoView({ behavior: "smooth" });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    });
+  </script>
+</body>
+</html>
