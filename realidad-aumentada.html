@@ -616,10 +616,11 @@
       arScriptsLoaded = true;
     }
 
-    function buildArTargetsHTML() {
+      function buildArTargetsHTML() {
       return Object.entries(arTargetModelMap).map(([targetIndex, objFile]) => `
         <a-entity mindar-image-target="targetIndex: ${targetIndex}">
           <a-entity
+            class="ar-model"
             obj-model="obj: url(${objFile})"
             scale="0.01 0.01 0.01"
             position="0 0 0"
@@ -627,6 +628,27 @@
           ></a-entity>
         </a-entity>
       `).join("");
+    }
+
+ function fixArModelVisibility(entityEl) {
+      entityEl.addEventListener("model-loaded", (evt) => {
+        const obj = evt.detail.model;
+        const ArTHREE = window.AFRAME.THREE; // THREE que usa A-Frame internamente
+
+        const material = new ArTHREE.MeshStandardMaterial({
+          color: 0xffffff,
+          roughness: 0.35,
+          metalness: 0.15,
+          side: ArTHREE.DoubleSide
+        });
+
+        obj.traverse((child) => {
+          if (child.isMesh) {
+            child.material = material;
+            if (child.geometry) child.geometry.computeVertexNormals();
+          }
+        });
+      });
     }
 
     async function startArScan() {
@@ -661,6 +683,10 @@
       `;
 
       arSceneEl = arSceneHolder.querySelector("a-scene");
+
+       arSceneHolder.querySelectorAll(".ar-model").forEach((el) => {
+        fixArModelVisibility(el);
+      });
 
       arSceneHolder.querySelectorAll("[mindar-image-target]").forEach((el) => {
         el.addEventListener("targetFound", () => {
