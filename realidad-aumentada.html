@@ -277,6 +277,25 @@
       transform: scale(0.9);
       background-color: #2b4b9b;
     }
+
+    /* Overlay de Realidad Aumentada real (MindAR) */
+    .ar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+    }
+
+    .ar-overlay.active {
+      display: block;
+    }
+
+    .ar-overlay iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
   </style>
 </head>
 <body>
@@ -345,6 +364,11 @@
       </a>
     </div>
   </main>
+
+  <!-- Overlay de Realidad Aumentada real (se activa al presionar "Activar Cámara") -->
+  <div class="ar-overlay" id="arOverlay">
+    <iframe id="arFrame" src="" allow="camera; xr-spatial-tracking; accelerometer; gyroscope" title="Escáner de Realidad Aumentada"></iframe>
+  </div>
 
   <script>
     lucide.createIcons();
@@ -505,26 +529,30 @@
       confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
     });
 
-    // Cámara
-    const video = document.getElementById("cameraStream");
-    const defaultBg = document.getElementById("defaultBg");
-    let streamActive = false;
+    // Realidad Aumentada real (MindAR) — se abre en un iframe aislado
+    // para no interferir con el visor 3D ni con el resto del diseño de esta página.
+    const arOverlay = document.getElementById("arOverlay");
+    const arFrame = document.getElementById("arFrame");
 
-    document.getElementById("scanBtn").addEventListener("click", async () => {
-      if (!streamActive) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" }
-          });
-          video.srcObject = stream;
-          video.style.display = "block";
-          defaultBg.style.display = "none";
-          streamActive = true;
-        } catch (err) {
-          alert("Acceso a cámara no disponible. Revisa los permisos.");
-        }
-      } else {
-        alert("Enfocando entorno...");
+    // Mapa target -> modelo. Por ahora solo el target 0 tiene modelo asignado;
+    // cuando tengas más targets en tu targets.mind, agrega aquí más entradas
+    // (targetIndex debe coincidir con el orden en que compilaste el .mind).
+    const arTargetModelMap = {
+      0: "modelo1.obj"
+      // 1: "modelo2.obj",
+    };
+
+    document.getElementById("scanBtn").addEventListener("click", () => {
+      arFrame.src = "ar-scan.html";
+      arOverlay.classList.add("active");
+    });
+
+    // El escáner AR (ar-scan.html) avisa por postMessage cuando el usuario
+    // presiona la "X" para cerrar el visor de cámara.
+    window.addEventListener("message", (event) => {
+      if (event.data && event.data.type === "closeAR") {
+        arOverlay.classList.remove("active");
+        arFrame.src = ""; // descarga el iframe y libera la cámara
       }
     });
 

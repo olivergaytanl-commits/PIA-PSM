@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Strike Zone - Escáner AR</title>
+
+  <!-- A-Frame + MindAR (aislados en esta página, no afectan al resto del sitio) -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.loaders.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #closeArBtn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      border: 2px solid #fff;
+      font-size: 20px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #arStatus {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      z-index: 9999;
+      text-align: center;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="closeArBtn" aria-label="Cerrar escáner">✕</button>
+  <div id="arStatus">Apunta la cámara al target…</div>
+
+  <!--
+    IMPORTANTE:
+    - "imageTargetSrc" apunta a tu archivo compilado targets.mind.
+      Ajusta la ruta según dónde lo coloques dentro del proyecto
+      (por defecto se asume una carpeta "assets" junto a este HTML).
+    - Si tu targets.mind está en otra ubicación, cambia solo esta línea.
+  -->
+  <a-scene
+    mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    embedded
+  >
+
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false"></a-camera>
+
+    <a-light type="ambient" color="#fff" intensity="1"></a-light>
+    <a-light type="directional" color="#fff" intensity="0.9" position="1 2 1"></a-light>
+
+    <!--
+      Target 0: por ahora es el único con modelo asignado.
+      El OBJ se carga sin .mtl (igual que en tu visor normal), por lo que
+      usará un material base de A-Frame. Si tu modelo se ve muy grande,
+      pequeño o mal orientado, ajusta "scale", "position" y "rotation" aquí.
+    -->
+    <a-entity id="target0" mindar-image-target="targetIndex: 0">
+      <a-entity
+        id="model0"
+        obj-model="obj: url(modelo1.obj)"
+        scale="0.01 0.01 0.01"
+        position="0 0 0"
+        rotation="0 0 0"
+      ></a-entity>
+    </a-entity>
+
+    <!--
+      Para agregar más targets en el futuro (uno por modelo):
+      1. Agrega otra entidad aquí, por ejemplo:
+         <a-entity id="target1" mindar-image-target="targetIndex: 1">
+           <a-entity id="model1" obj-model="obj: url(modelo2.obj)" scale="0.01 0.01 0.01"></a-entity>
+         </a-entity>
+      2. Asegúrate de recompilar targets.mind incluyendo ambas imágenes,
+         en el mismo orden (índice 0 y 1) con el compilador de MindAR:
+         https://hiukim.github.io/mind-ar-js-doc/tools/compile
+    -->
+  </a-scene>
+
+  <script>
+    const statusEl = document.getElementById("arStatus");
+    const target0 = document.getElementById("target0");
+
+    target0.addEventListener("targetFound", () => {
+      statusEl.textContent = "¡Modelo encontrado!";
+    });
+
+    target0.addEventListener("targetLost", () => {
+      statusEl.textContent = "Apunta la cámara al target…";
+    });
+
+    // Avisa a la página que lo abrió (realidad-aumentada.html) que debe
+    // cerrar el overlay y liberar la cámara.
+    document.getElementById("closeArBtn").addEventListener("click", () => {
+      const scene = document.querySelector("a-scene");
+      if (scene && scene.systems && scene.systems["mindar-image"]) {
+        try { scene.systems["mindar-image"].stop(); } catch (e) {}
+      }
+      if (window.parent) {
+        window.parent.postMessage({ type: "closeAR" }, "*");
+      }
+    });
+  </script>
+</body>
+</html>
