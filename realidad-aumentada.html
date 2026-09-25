@@ -361,7 +361,7 @@
 
       <!-- Visor con Three.js -->
       <div class="viewport-box" id="viewport">
-        <img class="default-bg" id="defaultBg" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80" alt="Fondo">
+        <img class="default-bg" id="defaultBg" crossorigin="anonymous" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80" alt="Fondo">
         <video id="cameraStream" autoplay playsinline style="display: none;"></video>
         <div class="scanner-brackets"></div>
 
@@ -436,7 +436,7 @@
     const camera = new THREE.PerspectiveCamera(45, viewport.clientWidth / viewport.clientHeight, 0.01, 100);
     camera.position.set(0, 0, 1.8);
 
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
     renderer.setSize(viewport.clientWidth, viewport.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -669,7 +669,7 @@
         <a-scene
           mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no;"
           color-space="sRGB"
-          renderer="colorManagement: true, physicallyCorrectLights"
+          renderer="colorManagement: true, physicallyCorrectLights, preserveDrawingBuffer: true"
           vr-mode-ui="enabled: false"
           device-orientation-permission-ui="enabled: true"
           embedded
@@ -718,13 +718,161 @@
 
     arCloseBtn.addEventListener("click", stopArScan);
 
-    // Captura de foto
+    // 8. Captura de Foto (guarda lo que se vea dentro del recuadro/visor)
+    //
+    // El recuadro (#viewport) puede estar mostrando dos cosas distintas:
+    //   a) Modo normal: fondo + modelo 3D girando en #threeCanvas
+    //   b) Modo AR activo: video de la cámara real + modelo superpuesto
+    //      dentro de #arSceneHolder (a-scene de MindAR)
+    // La función arma un canvas temporal, dibuja encima esas capas
+    // (respetando el "object-fit: cover" que se ve en pantalla) y el
+    // resultado final se guarda como imagen en la Galería (localStorage,
+    // misma "carpeta" que ya usa Filtros para guardar videos).
+
+    const GALLERY_KEY = "strike_gallery";
+    const MAX_GALLERY_ITEMS = 40; // evita llenar el localStorage del navegador
+
+    // Dibuja una imagen/video/canvas dentro de un rectángulo simulando
+    // el comportamiento CSS "object-fit: cover" (recorta sin deformar).
+    function drawCover(ctx, source, sourceW, sourceH, destX, destY, destW, destH) {
+      if (!sourceW || !sourceH) return;
+      const sourceRatio = sourceW / sourceH;
+      const destRatio = destW / destH;
+      let drawW, drawH, offsetX, offsetY;
+
+      if (sourceRatio > destRatio) {
+        drawH = destH;
+        drawW = destH * sourceRatio;
+        offsetX = (drawW - destW) / 2;
+        offsetY = 0;
+      } else {
+        drawW = destW;
+        drawH = destW / sourceRatio;
+        offsetX = 0;
+        offsetY = (drawH - destH) / 2;
+      }
+
+      ctx.drawImage(source, destX - offsetX, destY - offsetY, drawW, drawH);
+    }
+
+    function buildCaptureCanvas() {
+      const rect = viewport.getBoundingClientRect();
+      const scale = Math.min(window.devicePixelRatio || 1, 2); // nitidez sin generar archivos enormes
+      const outW = Math.round(rect.width * scale);
+      const outH = Math.round(rect.height * scale);
+
+      const shot = document.createElement("canvas");
+      shot.width = outW;
+      shot.height = outH;
+      const ctx = shot.getContext("2d");
+
+      const arActive = arScanContainer.classList.contains("active");
+
+      if (arActive && arSceneHolder) {
+        // Fondo negro por si alguna capa no llega a cubrir todo el recuadro
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, outW, outH);
+
+        // 1) Video real de la cámara (inyectado por MindAR dentro del holder)
+        const arVideo = arSceneHolder.querySelector("video");
+        if (arVideo && arVideo.videoWidth) {
+          try {
+            drawCover(ctx, arVideo, arVideo.videoWidth, arVideo.videoHeight, 0, 0, outW, outH);
+          } catch (e) { console.warn("No se pudo dibujar el video AR:", e); }
+        }
+
+        // 2) Canvas 3D de A-Frame/MindAR (el modelo superpuesto) encima del video
+        const arCanvas = arSceneHolder.querySelector("canvas");
+        if (arCanvas) {
+          try {
+            drawCover(ctx, arCanvas, arCanvas.width, arCanvas.height, 0, 0, outW, outH);
+          } catch (e) { console.warn("No se pudo dibujar el canvas AR:", e); }
+        }
+      } else {
+        // Modo normal: fondo + modelo 3D del visor
+        try {
+          if (defaultBg && defaultBg.complete && defaultBg.naturalWidth) {
+            drawCover(ctx, defaultBg, defaultBg.naturalWidth, defaultBg.naturalHeight, 0, 0, outW, outH);
+          } else {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, outW, outH);
+          }
+        } catch (e) {
+          // Si la imagen de fondo "mancha" el canvas por CORS, seguimos sin ella
+          console.warn("No se pudo incluir el fondo en la foto:", e);
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, outW, outH);
+        }
+
+        try {
+          ctx.drawImage(canvas, 0, 0, outW, outH); // threeCanvas ya cubre el recuadro completo
+        } catch (e) { console.warn("No se pudo dibujar el modelo 3D:", e); }
+      }
+
+      return shot;
+    }
+
+    function saveToGallery(dataUrl) {
+      const savedItem = {
+        id: Date.now(),
+        type: "photo",
+        photoUrl: dataUrl,
+        date: new Date().toLocaleDateString()
+      };
+
+      try {
+        const existing = JSON.parse(localStorage.getItem(GALLERY_KEY) || "[]");
+        existing.push(savedItem);
+        // Si se pasa del límite, descarta las fotos más viejas primero
+        while (existing.length > MAX_GALLERY_ITEMS) {
+          const idx = existing.findIndex(it => it.type === "photo");
+          existing.splice(idx !== -1 ? idx : 0, 1);
+        }
+        localStorage.setItem(GALLERY_KEY, JSON.stringify(existing));
+        return true;
+      } catch (e) {
+        console.error("No se pudo guardar la foto en la Galería:", e);
+        return false;
+      }
+    }
+
     document.getElementById("takePhoto").addEventListener("click", () => {
+      // Efecto de flash
       viewport.style.filter = "brightness(2)";
-      setTimeout(() => {
-        viewport.style.filter = "none";
-        alert("¡Fotografía capturada!");
-      }, 150);
+      setTimeout(() => { viewport.style.filter = "none"; }, 150);
+
+      let shotCanvas;
+      try {
+        shotCanvas = buildCaptureCanvas();
+      } catch (e) {
+        console.error(e);
+        alert("No se pudo tomar la foto. Intenta de nuevo.");
+        return;
+      }
+
+      let dataUrl;
+      try {
+        dataUrl = shotCanvas.toDataURL("image/jpeg", 0.9);
+      } catch (e) {
+        // Canvas "manchado" por una imagen sin permisos CORS: reintenta
+        // capturando solo el modelo 3D (sin el fondo), que sí es local.
+        console.warn("Fallo al exportar la foto completa, se intenta solo el modelo:", e);
+        try {
+          dataUrl = canvas.toDataURL("image/png");
+        } catch (e2) {
+          console.error(e2);
+          alert("No se pudo guardar la foto por un problema de permisos de imagen.");
+          return;
+        }
+      }
+
+      const ok = saveToGallery(dataUrl);
+      if (ok) {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+        alert("¡Foto guardada en tu Galería!");
+      } else {
+        alert("No se pudo guardar la foto (almacenamiento lleno). Borra algunas fotos e intenta de nuevo.");
+      }
     });
   </script>
 </body>

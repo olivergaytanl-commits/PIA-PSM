@@ -422,7 +422,10 @@
       viewerModal.style.display = "none";
     });
 
-    // Cargar videos guardados desde localStorage (Filtros / RA)
+    // Cargar fotos y videos guardados desde localStorage (RA / Filtros)
+    // Cada item puede ser:
+    //   - Foto:  { type: "photo", photoUrl, date }        (tomada en Realidad Aumentada)
+    //   - Video: { videoUrl, appliedFilter, date }         (guardado desde Filtros)
     const savedGallery = JSON.parse(localStorage.getItem("strike_gallery") || "[]");
     if (savedGallery.length > 0) {
       savedVideosContainer.innerHTML = `
@@ -431,21 +434,37 @@
         </div>
       `;
 
-      savedGallery.forEach((item, index) => {
-        const videoCard = document.createElement("div");
-        videoCard.className = "wide-card";
-        videoCard.style.marginTop = "8px";
-        videoCard.innerHTML = `
-          <video class="media-item ${item.appliedFilter || ''}" muted playsinline>
-            <source src="${item.videoUrl}" type="video/mp4">
-          </video>
-          <div class="play-badge">
-            <i data-lucide="play" style="width: 20px; height: 20px; fill: white;"></i>
-          </div>
-          <span class="card-label">Video Guardado #${index + 1}</span>
-        `;
-        videoCard.onclick = () => openVideoViewer(item.videoUrl, item.appliedFilter);
-        savedVideosContainer.appendChild(videoCard);
+      let photoCount = 0;
+      let videoCount = 0;
+
+      savedGallery.forEach((item) => {
+        const isPhoto = item.type === "photo" || (!!item.photoUrl && !item.videoUrl);
+        const card = document.createElement("div");
+        card.className = "wide-card";
+        card.style.marginTop = "8px";
+
+        if (isPhoto) {
+          photoCount++;
+          card.innerHTML = `
+            <img class="media-item" src="${item.photoUrl}" alt="Foto guardada">
+            <span class="card-label">Foto RA #${photoCount}</span>
+          `;
+          card.onclick = () => openPhotoViewer(item.photoUrl, `Foto guardada (${item.date || ""})`);
+        } else {
+          videoCount++;
+          card.innerHTML = `
+            <video class="media-item ${item.appliedFilter || ''}" muted playsinline>
+              <source src="${item.videoUrl}" type="video/mp4">
+            </video>
+            <div class="play-badge">
+              <i data-lucide="play" style="width: 20px; height: 20px; fill: white;"></i>
+            </div>
+            <span class="card-label">Video Guardado #${videoCount}</span>
+          `;
+          card.onclick = () => openVideoViewer(item.videoUrl, item.appliedFilter);
+        }
+
+        savedVideosContainer.appendChild(card);
       });
       lucide.createIcons();
     }
