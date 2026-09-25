@@ -773,6 +773,12 @@
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, outW, outH);
 
+        // Forzamos un render fresco de la escena AR justo antes de capturar,
+        // para no leer un frame viejo o un buffer todavía vacío.
+        if (arSceneEl && arSceneEl.renderer && arSceneEl.camera && arSceneEl.object3D) {
+          try { arSceneEl.renderer.render(arSceneEl.object3D, arSceneEl.camera); } catch (e) { /* noop */ }
+        }
+
         // 1) Video real de la cámara (inyectado por MindAR dentro del holder)
         const arVideo = arSceneHolder.querySelector("video");
         if (arVideo && arVideo.videoWidth) {
@@ -790,6 +796,11 @@
         }
       } else {
         // Modo normal: fondo + modelo 3D del visor
+
+        // Forzamos un render fresco del visor 3D justo antes de capturar,
+        // para asegurarnos de leer el frame más reciente (con el modelo ya dibujado).
+        try { renderer.render(scene, camera); } catch (e) { /* noop */ }
+
         try {
           if (defaultBg && defaultBg.complete && defaultBg.naturalWidth) {
             drawCover(ctx, defaultBg, defaultBg.naturalWidth, defaultBg.naturalHeight, 0, 0, outW, outH);
