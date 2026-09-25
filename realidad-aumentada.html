@@ -162,6 +162,18 @@
       cursor: grabbing;
     }
 
+    /* Canvas propio para el confeti, confinado al recuadro (no a toda la
+       pantalla) para que quede incluido cuando se toma la foto. */
+    #confettiCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 8;
+      pointer-events: none;
+    }
+
     .model-tag {
       position: absolute;
       bottom: 12px;
@@ -366,6 +378,7 @@
         <div class="scanner-brackets"></div>
 
         <canvas id="threeCanvas"></canvas>
+        <canvas id="confettiCanvas"></canvas>
         <span id="modelLabel" class="model-tag">Cargando Modelo...</span>
 
         <!-- Realidad Aumentada real (MindAR), confinada a este mismo recuadro -->
@@ -455,6 +468,21 @@
     let loadedObject = null;
     let isRotating = false;
     const objLoader = new THREE.OBJLoader();
+
+    // Confeti confinado al recuadro (antes usaba el canvas global de
+    // pantalla completa que crea la librería, y por eso nunca quedaba
+    // incluido en la foto). Le damos su propio canvas del tamaño del
+    // visor y creamos una instancia de confetti atada a ese canvas.
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    function sizeConfettiCanvas() {
+      const rect = viewport.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      confettiCanvas.width = Math.round(rect.width * dpr);
+      confettiCanvas.height = Math.round(rect.height * dpr);
+    }
+    sizeConfettiCanvas();
+    window.addEventListener("resize", sizeConfettiCanvas);
+    const fireConfetti = confetti.create(confettiCanvas, { resize: false, useWorker: true });
 
     // 3. Función para cargar y cambiar modelos dinámicamente
     function loadSelectedModel(index) {
@@ -573,7 +601,7 @@
     });
 
     document.getElementById("confettiBtn").addEventListener("click", () => {
-      confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
+      fireConfetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
     });
 
     // Realidad Aumentada real (MindAR), embebida dentro del mismo recuadro
@@ -698,6 +726,32 @@
       });
     }
 
+    // Reaplica el material y recalcula las normales del modelo AR justo
+    // antes de tomar la foto. Si activas/desactivas el escaneo varias
+    // veces, el evento "model-loaded" puede llegar en un mal momento y el
+    // modelo queda con normales sin calcular (se ve negro/invisible tanto
+    // en pantalla como en la foto). Esto es una red de seguridad.
+    function forceFixArModelMaterials() {
+      if (!arSceneHolder || !window.AFRAME) return;
+      const ArTHREE = window.AFRAME.THREE;
+      arSceneHolder.querySelectorAll(".ar-model").forEach((el) => {
+        const obj = el.getObject3D && el.getObject3D("mesh");
+        if (!obj) return;
+        const material = new ArTHREE.MeshStandardMaterial({
+          color: 0xffffff,
+          roughness: 0.35,
+          metalness: 0.15,
+          side: ArTHREE.DoubleSide
+        });
+        obj.traverse((child) => {
+          if (child.isMesh) {
+            child.material = material;
+            if (child.geometry) child.geometry.computeVertexNormals();
+          }
+        });
+      });
+    }
+
     function stopArScan() {
       if (arSceneEl && arSceneEl.systems && arSceneEl.systems["mindar-image"]) {
         try { arSceneEl.systems["mindar-image"].stop(); } catch (e) {}
@@ -773,8 +827,11 @@
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, outW, outH);
 
-        // Forzamos un render fresco de la escena AR justo antes de capturar,
-        // para no leer un frame viejo o un buffer todavía vacío.
+        // Nos aseguramos de que el modelo tenga su material/normales bien
+        // puestos (ver forceFixArModelMaterials) y forzamos un render
+        // fresco de la escena AR justo antes de capturar, para no leer un
+        // frame viejo o un buffer todavía vacío.
+        try { forceFixArModelMaterials(); } catch (e) { /* noop */ }
         if (arSceneEl && arSceneEl.renderer && arSceneEl.camera && arSceneEl.object3D) {
           try { arSceneEl.renderer.render(arSceneEl.object3D, arSceneEl.camera); } catch (e) { /* noop */ }
         }
@@ -820,6 +877,13 @@
         } catch (e) { console.warn("No se pudo dibujar el modelo 3D:", e); }
       }
 
+      // El confeti vive en su propio canvas (#confettiCanvas), encima de
+      // todo lo demás dentro del recuadro, tanto en modo normal como en AR.
+      // Se agrega al final para que quede por encima del modelo/video.
+      try {
+        ctx.drawImage(confettiCanvas, 0, 0, outW, outH);
+      } catch (e) { console.warn("No se pudo incluir el confeti en la foto:", e); }
+
       return shot;
     }
 
@@ -847,10 +911,16 @@
       }
     }
 
-    document.getElementById("takePhoto").addEventListener("click", () => {
+    document.getElementById("takePhoto").addEventListener("click", async () => {
       // Efecto de flash
       viewport.style.filter = "brightness(2)";
       setTimeout(() => { viewport.style.filter = "none"; }, 150);
+
+      // Esperamos dos frames antes de capturar, para asegurarnos de que el
+      // navegador ya terminó de pintar el último render del modelo/confeti
+      // (evita capturar un buffer viejo o todavía vacío).
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
 
       let shotCanvas;
       try {
