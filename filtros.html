@@ -182,6 +182,86 @@
     .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(0.95); }
     .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2); }
 
+    /* Tira de Equipos (debajo del video) para elegir de qué equipo
+       quieres ver videos precargados */
+    .team-strip-wrapper {
+      width: 100%;
+      margin-top: 14px;
+    }
+
+    .team-strip-label {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      padding: 0 4px;
+      opacity: 0.95;
+    }
+
+    .team-strip {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 4px 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .team-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .team-chip {
+      flex: 0 0 auto;
+      width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .team-chip-logo {
+      width: 52px;
+      height: 52px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      border: 3px solid transparent;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .team-chip-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .team-chip.selected .team-chip-logo {
+      border-color: #ffffff;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.75);
+    }
+
+    .team-chip-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      text-transform: uppercase;
+      line-height: 1.15;
+      max-width: 64px;
+    }
+
     /* Barra de Botones Inferiores */
     .actions-bar {
       width: 100%;
@@ -247,6 +327,14 @@
       font-weight: 800;
     }
 
+    .video-options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
     .video-option-btn {
       background: #f0f2f5;
       border: none;
@@ -259,10 +347,17 @@
       font-weight: 600;
       cursor: pointer;
       transition: background 0.15s ease;
+      width: 100%;
+      text-align: left;
     }
 
     .video-option-btn:hover {
       background: #e1e6ed;
+    }
+
+    .video-option-btn.active {
+      background: #d880bc;
+      color: #ffffff;
     }
 
     .close-modal-btn {
@@ -339,10 +434,16 @@
         </div>
       </div>
 
+      <!-- Tira de Equipos: elige uno para ver sus 8 videos precargados -->
+      <div class="team-strip-wrapper">
+        <div class="team-strip-label">Elige un equipo para ver sus videos</div>
+        <div class="team-strip" id="teamStrip"></div>
+      </div>
+
       <!-- Acciones: Galería de videos y Guardar -->
       <div class="actions-bar">
         <!-- Botón Galería: Abre selector de videos precargados -->
-        <button class="action-square-btn" id="openPickerBtn" aria-label="Elegir Video">
+        <button class="action-square-btn" id="openPickerBtn" aria-label="Ver videos del equipo elegido">
           <i data-lucide="image" style="width: 32px; height: 32px; stroke-width: 2.2;"></i>
         </button>
 
@@ -352,19 +453,12 @@
         </button>
       </div>
 
-      <!-- Modal para Elegir Videos Precargados -->
+      <!-- Modal para Elegir Videos Precargados (el contenido de la lista
+           se llena por JS según el equipo elegido en la tira de arriba) -->
       <div class="video-picker-modal" id="videoModal">
         <div class="picker-card">
-          <h3>Selecciona un Video Precargado</h3>
-          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">
-            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 1: Jugada en el Diamante
-          </button>
-          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4">
-            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 2: Entrenamiento y Bateo
-          </button>
-          <button class="video-option-btn" data-src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4">
-            <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video 3: Celebración en el Estadio
-          </button>
+          <h3 id="pickerTitle">Selecciona un Video Precargado</h3>
+          <div class="video-options-list" id="videoOptionsList"></div>
           <button class="close-modal-btn" id="closeModalBtn">Cerrar</button>
         </div>
       </div>
@@ -379,7 +473,11 @@
   </main>
 
   <script>
-    lucide.createIcons();
+    try {
+      lucide.createIcons();
+    } catch (e) {
+      console.warn("No se pudieron cargar los íconos de Lucide:", e);
+    }
 
     const video = document.getElementById("targetVideo");
     const videoSource = document.getElementById("videoSource");
@@ -387,8 +485,61 @@
     const openPickerBtn = document.getElementById("openPickerBtn");
     const videoModal = document.getElementById("videoModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
-    const videoOptions = document.querySelectorAll(".video-option-btn");
     const saveVideoBtn = document.getElementById("saveVideoBtn");
+    const teamStrip = document.getElementById("teamStrip");
+    const pickerTitle = document.getElementById("pickerTitle");
+    const videoOptionsList = document.getElementById("videoOptionsList");
+
+    // Mismos 15 equipos que ya tenemos en la Wiki (wiki.html /
+    // equipo-detalle.html), para mantener un solo catálogo consistente.
+    const teamsCatalog = [
+      { id: "yankees", name: "Yankees", logo: "https://www.mlbstatic.com/team-logos/147.svg" },
+      { id: "athletics", name: "Athletics", logo: "https://www.mlbstatic.com/team-logos/133.svg" },
+      { id: "mariners", name: "Mariners", logo: "https://www.mlbstatic.com/team-logos/136.svg" },
+      { id: "redsox", name: "Red Sox", logo: "https://www.mlbstatic.com/team-logos/111.svg" },
+      { id: "astros", name: "Astros", logo: "https://www.mlbstatic.com/team-logos/117.svg" },
+      { id: "rangers", name: "Rangers", logo: "https://www.mlbstatic.com/team-logos/140.svg" },
+      { id: "angels", name: "Angels", logo: "https://www.mlbstatic.com/team-logos/108.svg" },
+      { id: "orioles", name: "Orioles", logo: "https://www.mlbstatic.com/team-logos/110.svg" },
+      { id: "bluejays", name: "Blue Jays", logo: "https://www.mlbstatic.com/team-logos/141.svg" },
+      { id: "guardians", name: "Guardians", logo: "https://www.mlbstatic.com/team-logos/114.svg" },
+      { id: "cubs", name: "Cubs", logo: "https://www.mlbstatic.com/team-logos/112.svg" },
+      { id: "cardinals", name: "Cardinals", logo: "https://www.mlbstatic.com/team-logos/138.svg" },
+      { id: "giants", name: "Giants", logo: "https://www.mlbstatic.com/team-logos/137.svg" },
+      { id: "padres", name: "Padres", logo: "https://www.mlbstatic.com/team-logos/135.svg" },
+      { id: "braves", name: "Braves", logo: "https://www.mlbstatic.com/team-logos/144.svg" }
+    ];
+
+    // Set de 8 videos de muestra (placeholder) que se usan por defecto
+    // para cualquier equipo que todavía no tenga sus propios clips.
+    const sampleVideoPool = [
+      { title: "Jugada en el Diamante", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
+      { title: "Entrenamiento y Bateo", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
+      { title: "Celebración en el Estadio", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
+      { title: "Lanzamiento Estelar", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
+      { title: "Doble Play Espectacular", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
+      { title: "Jonrón Decisivo", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
+      { title: "Calentamiento Previo al Juego", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
+      { title: "Festejo de Victoria", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" }
+    ];
+
+    // Para darle a un equipo sus propios 8 videos reales (en cuanto los
+    // tengas), agrega aquí una entrada con su id y un arreglo de hasta 8
+    // objetos { title, src }. Mientras un equipo no tenga entrada propia,
+    // usa el set de muestra de arriba. Ejemplo:
+    // const teamVideoLibrary = {
+    //   yankees: [
+    //     { title: "Jonrón de Judge", src: "videos/yankees/1.mp4" },
+    //     ... hasta 8
+    //   ]
+    // };
+    const teamVideoLibrary = {};
+
+    function getVideosForTeam(teamId) {
+      return teamVideoLibrary[teamId] || sampleVideoPool;
+    }
+
+    let selectedTeamId = null;
 
     let currentFilterClass = "filter-warm";
     video.className = currentFilterClass;
@@ -405,24 +556,74 @@
       });
     });
 
-    // Abrir y cerrar modal de videos precargados
-    openPickerBtn.addEventListener("click", () => {
+    // Dibuja la tira de equipos debajo del video
+    teamStrip.innerHTML = teamsCatalog.map(team => `
+      <button type="button" class="team-chip" data-team="${team.id}" aria-label="${team.name}">
+        <span class="team-chip-logo"><img src="${team.logo}" alt="${team.name}"></span>
+        <span class="team-chip-name">${team.name}</span>
+      </button>
+    `).join("");
+
+    const teamChips = teamStrip.querySelectorAll(".team-chip");
+
+    // Llena el modal con los 8 videos del equipo indicado y lo abre
+    function openVideoPickerForTeam(teamId) {
+      const team = teamsCatalog.find(t => t.id === teamId);
+      if (!team) return;
+
+      selectedTeamId = teamId;
+
+      teamChips.forEach(chip => {
+        chip.classList.toggle("selected", chip.dataset.team === teamId);
+      });
+
+      pickerTitle.textContent = `Videos de los ${team.name}`;
+
+      const videos = getVideosForTeam(teamId);
+      videoOptionsList.innerHTML = videos.map((v, index) => `
+        <button type="button" class="video-option-btn" data-src="${v.src}">
+          <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video ${index + 1}: ${v.title}
+        </button>
+      `).join("");
+
+      try { lucide.createIcons(); } catch (e) { /* noop si Lucide no cargó */ }
+
       videoModal.style.display = "flex";
+    }
+
+    // Elegir equipo en la tira -> abre sus 8 videos
+    teamChips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        openVideoPickerForTeam(chip.dataset.team);
+      });
+    });
+
+    // Botón de galería: reabre el selector del equipo ya elegido; si
+    // todavía no se ha elegido ninguno, avisa que hay que elegir uno abajo.
+    openPickerBtn.addEventListener("click", () => {
+      if (selectedTeamId) {
+        openVideoPickerForTeam(selectedTeamId);
+      } else {
+        alert("Primero elige un equipo en la lista de abajo para ver sus videos.");
+        teamStrip.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     });
 
     closeModalBtn.addEventListener("click", () => {
       videoModal.style.display = "none";
     });
 
-    // Cargar video seleccionado
-    videoOptions.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const newSrc = btn.dataset.src;
-        videoSource.src = newSrc;
-        video.load();
-        video.play();
-        videoModal.style.display = "none";
-      });
+    // Cargar el video elegido dentro del modal. Como la lista se vuelve a
+    // generar cada vez (depende del equipo), el click se escucha sobre el
+    // contenedor (delegación de eventos) en vez de sobre cada botón.
+    videoOptionsList.addEventListener("click", (event) => {
+      const btn = event.target.closest(".video-option-btn");
+      if (!btn) return;
+
+      videoSource.src = btn.dataset.src;
+      video.load();
+      video.play();
+      videoModal.style.display = "none";
     });
 
     // Guardar Video Editado (Guarda en localStorage para la Galería)
