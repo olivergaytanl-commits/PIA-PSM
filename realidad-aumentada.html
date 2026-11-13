@@ -10,9 +10,10 @@
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Three.js y OBJLoader -->
+  <!-- Three.js y OBJLoader/MTLLoader (MTLLoader para conservar texturas/colores originales) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
 
   <style>
     * {
@@ -433,12 +434,126 @@
   <script>
     lucide.createIcons();
 
-    // 1. Catálogo de Modelos OBJ
-    const modelList = [
-      { id: 'modelo1', name: 'Capitán Whiskers (Modelo 1)', file: 'modelo1.obj' },
-      { id: 'modelo2', name: 'Trofeo Mascota (Modelo 2)', file: 'modelo2.obj' },
-      { id: 'modelo3', name: 'Capibara (Modelo 3)', file: 'Meshy_AI_Capybara_Slugger_20261106_texture.obj' }
-    ];
+    // 1. Catálogo de Mascotas (una por cada target de Realidad Aumentada).
+    // Este es el mismo mapa que usa el escáner AR más abajo: así el visor
+    // normal y el AR comparten una sola fuente de verdad y no hay que
+    // mantener dos listas sincronizadas a mano.
+    const arTargetModelMap = {
+      0: {
+        obj: "modelos/Meshy_AI_Captain_Whiskers_20261106_texture.obj",
+        mtl: "modelos/Meshy_AI_Captain_Whiskers_20261106_texture.mtl"
+      },
+      1: {
+        obj: "modelos/Meshy_AI_A_s_Fennec_Fan_20261106_texture.obj",
+        mtl: "modelos/Meshy_AI_A_s_Fennec_Fan_20261106_texture.mtl"
+      },
+      2: {
+        obj: "modelos/Meshy_AI_Capyball_Champ_20261106_texture.obj",
+        mtl: "modelos/Meshy_AI_Capyball_Champ_20261106_texture.mtl"
+      },
+      3: {
+        obj: "modelos/Meshy_AI_Capybara_Slugger_20261106_texture.obj",
+        mtl: "modelos/Meshy_AI_Capybara_Slugger_20261106_texture.mtl"
+      },
+      4: {
+        obj: "modelos/Meshy_AI_Astro_Bunny_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Astro_Bunny_20261112_texture.mtl"
+      },
+      5: {
+        obj: "modelos/Meshy_AI_Rally_Cat_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Rally_Cat_20261112_texture.mtl"
+      },
+      6: {
+        obj: "modelos/Meshy_AI_Angel_Fox_Fan_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Angel_Fox_Fan_20261112_texture.mtl"
+      },
+      7: {
+        obj: "modelos/Meshy_AI_Orioles_Shiba_Slugger_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Orioles_Shiba_Slugger_20261112_texture.mtl"
+      },
+      8: {
+        obj: "modelos/Meshy_AI_Rally_Raccoon_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Rally_Raccoon_20261112_texture.mtl"
+      },
+      9: {
+        obj: "modelos/Meshy_AI_Guardian_Raccoon_Mascot_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Guardian_Raccoon_Mascot_20261112_texture.mtl"
+      },
+      10: {
+        obj: "modelos/Meshy_AI_Cubbie_Hamster_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Cubbie_Hamster_20261112_texture.mtl"
+      },
+      11: {
+        obj: "modelos/Meshy_AI_Cardinals_Hamster_Mascot_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Cardinals_Hamster_Mascot_20261112_texture.mtl"
+      },
+      12: {
+        obj: "modelos/Meshy_AI_Giants_Hamster_Fan_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Giants_Hamster_Fan_20261112_texture.mtl"
+      },
+      13: {
+        obj: "modelos/Meshy_AI_Padres_Penguin_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Padres_Penguin_20261112_texture.mtl"
+      },
+      14: {
+        obj: "modelos/Meshy_AI_Braves_Penguin_20261112_texture.obj",
+        mtl: "modelos/Meshy_AI_Braves_Penguin_20261112_texture.mtl"
+      }
+    };
+
+    // Convierte el nombre de archivo (p. ej. "Meshy_AI_Captain_Whiskers_20261106_texture")
+    // en un nombre legible: "Captain Whiskers".
+    function prettyNameFromFile(path) {
+      const fileName = path.split("/").pop().replace(/\.[^/.]+$/, "");
+      return fileName
+        .replace(/^Meshy_AI_/i, "")
+        .replace(/_\d{8}_texture$/i, "")
+        .replace(/_\d{8}$/i, "")
+        .replace(/_texture$/i, "")
+        .replace(/_/g, " ")
+        .replace(/\bA s\b/, "A's")
+        .trim();
+    }
+
+    // Catálogo completo (las 15 mascotas), en el mismo orden que sus
+    // índices de target en targets.mind.
+    const mascotCatalog = Object.entries(arTargetModelMap).map(([targetIndex, model]) => ({
+      targetIndex: Number(targetIndex),
+      name: prettyNameFromFile(model.obj),
+      file: model.obj,
+      mtl: model.mtl || null
+    }));
+
+    // 1.1 Mascotas desbloqueadas (las que ya escaneaste en AR al menos una
+    // vez). Se guardan en localStorage para que la lista siga apareciendo
+    // aunque cierres y vuelvas a abrir la app.
+    const UNLOCKED_KEY = "strike_unlocked_mascots";
+
+    function loadUnlockedMascots() {
+      try {
+        const arr = JSON.parse(localStorage.getItem(UNLOCKED_KEY) || "[]");
+        return new Set(Array.isArray(arr) ? arr.map(Number) : []);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    function saveUnlockedMascots(set) {
+      try {
+        localStorage.setItem(UNLOCKED_KEY, JSON.stringify(Array.from(set)));
+      } catch (e) {
+        console.warn("No se pudo guardar el progreso de mascotas desbloqueadas:", e);
+      }
+    }
+
+    let unlockedMascots = loadUnlockedMascots();
+
+    // Devuelve solo las mascotas ya desbloqueadas, en el mismo orden del
+    // catálogo. Esta es la lista que recorren las flechas del visor normal.
+    function getUnlockedCatalog() {
+      return mascotCatalog.filter((m) => unlockedMascots.has(m.targetIndex));
+    }
+
     let currentModelIndex = 0;
 
     // 2. Configuración Three.js
@@ -485,9 +600,10 @@
     window.addEventListener("resize", sizeConfettiCanvas);
     const fireConfetti = confetti.create(confettiCanvas, { resize: false, useWorker: true });
 
-    // 3. Función para cargar y cambiar modelos dinámicamente
+    // 3. Función para cargar y cambiar modelos dinámicamente.
+    // Solo recorre las mascotas YA DESBLOQUEADAS (las que escaneaste en AR).
     function loadSelectedModel(index) {
-      modelLabel.textContent = `Cargando...`;
+      const unlocked = getUnlockedCatalog();
 
       // Si ya había un modelo cargado, lo removemos de la escena
       if (loadedObject) {
@@ -495,56 +611,109 @@
         loadedObject = null;
       }
 
-      const item = modelList[index];
+      if (unlocked.length === 0) {
+        currentModelIndex = 0;
+        modelLabel.textContent = "Escanea un target para desbloquear mascotas";
+        return;
+      }
 
-      objLoader.load(
-        item.file,
-        (object) => {
-          const material = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            roughness: 0.35,
-            metalness: 0.15,
-            side: THREE.DoubleSide
-          });
+      // Normaliza el índice al tamaño actual de la lista desbloqueada
+      currentModelIndex = ((index % unlocked.length) + unlocked.length) % unlocked.length;
+      const item = unlocked[currentModelIndex];
 
-          object.traverse((child) => {
-            if (child.isMesh) {
-              child.material = material;
-              child.geometry.computeVertexNormals();
+      modelLabel.textContent = `Cargando...`;
+
+      function placeInScene(object) {
+        object.traverse((child) => {
+          if (child.isMesh) {
+            // Si no hay .mtl (o falló su carga), usamos un material base
+            // en vez de dejar el modelo sin material visible.
+            if (!item.mtl || !child.material) {
+              child.material = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.35,
+                metalness: 0.15,
+                side: THREE.DoubleSide
+              });
+            } else {
+              child.material.side = THREE.DoubleSide;
             }
-          });
+            if (child.geometry) child.geometry.computeVertexNormals();
+          }
+        });
 
-          // Centrar modelo en el origen
-          const box = new THREE.Box3().setFromObject(object);
-          const center = box.getCenter(new THREE.Vector3());
-          object.position.sub(center);
+        // Centrar modelo en el origen
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
+        object.position.sub(center);
 
-          const group = new THREE.Group();
-          group.add(object);
-          scene.add(group);
-          loadedObject = group;
+        const group = new THREE.Group();
+        group.add(object);
+        scene.add(group);
+        loadedObject = group;
 
-          modelLabel.textContent = item.name;
-        },
-        undefined,
-        (error) => {
-          console.error("Error al cargar " + item.file, error);
-          modelLabel.textContent = `Error: archivo ${item.file} no encontrado`;
-        }
-      );
+        modelLabel.textContent = item.name;
+      }
+
+      function loadObjOnly() {
+        const loader = new THREE.OBJLoader();
+        loader.load(
+          item.file,
+          placeInScene,
+          undefined,
+          (error) => {
+            console.error("Error al cargar " + item.file, error);
+            modelLabel.textContent = `Error: archivo ${item.file} no encontrado`;
+          }
+        );
+      }
+
+      if (item.mtl) {
+        const mtlLoader = new THREE.MTLLoader();
+        mtlLoader.load(
+          item.mtl,
+          (materials) => {
+            materials.preload();
+            const loader = new THREE.OBJLoader();
+            loader.setMaterials(materials);
+            loader.load(
+              item.file,
+              placeInScene,
+              undefined,
+              (error) => {
+                console.error("Error al cargar " + item.file, error);
+                modelLabel.textContent = `Error: archivo ${item.file} no encontrado`;
+              }
+            );
+          },
+          undefined,
+          () => {
+            // No se pudo cargar el .mtl: seguimos con el .obj solo
+            console.warn("No se pudo cargar " + item.mtl + ", se usa material base.");
+            loadObjOnly();
+          }
+        );
+      } else {
+        loadObjOnly();
+      }
     }
 
-    // Cargar el primer modelo al iniciar
+    // Cargar el primer modelo desbloqueado al iniciar (o el mensaje de
+    // "aún no hay nada desbloqueado" si es la primera vez).
     loadSelectedModel(currentModelIndex);
 
-    // 4. Navegación entre modelos (Flechas ◀ y ▶)
+    // 4. Navegación entre mascotas desbloqueadas (Flechas ◀ y ▶)
     document.getElementById("prevModelBtn").addEventListener("click", () => {
-      currentModelIndex = (currentModelIndex - 1 + modelList.length) % modelList.length;
+      const unlocked = getUnlockedCatalog();
+      if (unlocked.length === 0) return;
+      currentModelIndex = (currentModelIndex - 1 + unlocked.length) % unlocked.length;
       loadSelectedModel(currentModelIndex);
     });
 
     document.getElementById("nextModelBtn").addEventListener("click", () => {
-      currentModelIndex = (currentModelIndex + 1) % modelList.length;
+      const unlocked = getUnlockedCatalog();
+      if (unlocked.length === 0) return;
+      currentModelIndex = (currentModelIndex + 1) % unlocked.length;
       loadSelectedModel(currentModelIndex);
     });
 
@@ -615,86 +784,9 @@
     let arScriptsLoaded = false;
     let arSceneEl = null;
 
-    // Mapa target -> modelo. Por ahora solo el target 0 tiene modelo asignado;
-    // cuando tengas más targets en tu targets.mind, agrega aquí más entradas
-    // (targetIndex debe coincidir con el orden en que compilaste el .mind).
-    const arTargetModelMap = {
-      0: {
-        obj: "modelos/Meshy_AI_Captain_Whiskers_20261106_texture.obj",
-        mtl: "modelos/Meshy_AI_Captain_Whiskers_20261106_texture.mtl"
-      },
-
-      1: {
-        obj: "modelos/Meshy_AI_A_s_Fennec_Fan_20261106_texture.obj",
-        mtl: "modelos/Meshy_AI_A_s_Fennec_Fan_20261106_texture.mtl"
-      },
-
-      2: {
-        obj: "modelos/Meshy_AI_Capyball_Champ_20261106_texture.obj",
-        mtl: "modelos/Meshy_AI_Capyball_Champ_20261106_texture.mtl"
-      },
-
-      3: {
-        obj: "modelos/Meshy_AI_Capybara_Slugger_20261106_texture.obj",
-        mtl: "modelos/Meshy_AI_Capybara_Slugger_20261106_texture.mtl"
-      },
-
-      4: {
-        obj: "modelos/Meshy_AI_Astro_Bunny_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Astro_Bunny_20261112_texture.mtl"
-      },
-
-      5: {
-        obj: "modelos/Meshy_AI_Rally_Cat_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Rally_Cat_20261112_texture.mtl"
-      },
-
-      6: {
-        obj: "modelos/Meshy_AI_Angel_Fox_Fan_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Angel_Fox_Fan_20261112_texture.mtl"
-      },
-
-      7: {
-        obj: "modelos/Meshy_AI_Orioles_Shiba_Slugger_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Orioles_Shiba_Slugger_20261112_texture.mtl"
-      },
-
-      8: {
-        obj: "modelos/Meshy_AI_Rally_Raccoon_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Rally_Raccoon_20261112_texture.mtl"
-      },
-
-      9: {
-        obj: "modelos/Meshy_AI_Guardian_Raccoon_Mascot_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Guardian_Raccoon_Mascot_20261112_texture.mtl"
-      },
-
-      10: {
-        obj: "modelos/Meshy_AI_Cubbie_Hamster_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Cubbie_Hamster_20261112_texture.mtl"
-      },
-
-      11: {
-        obj: "modelos/Meshy_AI_Cardinals_Hamster_Mascot_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Cardinals_Hamster_Mascot_20261112_texture.mtl"
-      },
-
-      12: {
-        obj: "modelos/Meshy_AI_Giants_Hamster_Fan_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Giants_Hamster_Fan_20261112_texture.mtl"
-      },
-
-      13: {
-        obj: "modelos/Meshy_AI_Padres_Penguin_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Padres_Penguin_20261112_texture.mtl"
-      },
-
-      14: {
-        obj: "modelos/Meshy_AI_Braves_Penguin_20261112_texture.obj",
-        mtl: "modelos/Meshy_AI_Braves_Penguin_20261112_texture.mtl"
-      }
-
-    };
+    // El mapa target -> modelo (arTargetModelMap) y el catálogo derivado
+    // (mascotCatalog) se definieron arriba, junto al visor normal, para
+    // que ambos compartan la misma fuente de datos.
 
     function loadScriptOnce(src) {
       return new Promise((resolve, reject) => {
@@ -726,7 +818,7 @@
             : "";
 
           return `
-            <a-entity mindar-image-target="targetIndex: ${targetIndex}">
+            <a-entity mindar-image-target="targetIndex: ${targetIndex}" data-target-index="${targetIndex}">
               <a-entity
                 class="ar-model"
                 obj-model="obj: url(${model.obj}); ${mtlAttribute}"
@@ -805,9 +897,34 @@
       });
 
       arSceneHolder.querySelectorAll("[mindar-image-target]").forEach((el) => {
+        const targetIndex = Number(el.dataset.targetIndex);
+        const mascotInfo = mascotCatalog.find((m) => m.targetIndex === targetIndex);
+
         el.addEventListener("targetFound", () => {
-          arStatusTag.textContent = "¡Modelo encontrado!";
+          const yaDesbloqueada = unlockedMascots.has(targetIndex);
+
+          if (!yaDesbloqueada) {
+            // Primera vez que se escanea este target: se desbloquea la
+            // mascota, se guarda en localStorage y se avisa al usuario.
+            unlockedMascots.add(targetIndex);
+            saveUnlockedMascots(unlockedMascots);
+
+            arStatusTag.textContent = mascotInfo
+              ? `¡Mascota desbloqueada! ${mascotInfo.name}`
+              : "¡Mascota desbloqueada!";
+
+            try { fireConfetti({ particleCount: 90, spread: 70, origin: { y: 0.5 } }); } catch (e) { /* noop */ }
+
+            // Actualiza el visor normal para que, al cerrar el escáner,
+            // ya se vea la mascota recién desbloqueada en la lista de flechas.
+            const unlockedList = getUnlockedCatalog();
+            const newIndex = unlockedList.findIndex((m) => m.targetIndex === targetIndex);
+            if (newIndex !== -1) loadSelectedModel(newIndex);
+          } else {
+            arStatusTag.textContent = mascotInfo ? `¡${mascotInfo.name} encontrado!` : "¡Modelo encontrado!";
+          }
         });
+
         el.addEventListener("targetLost", () => {
           arStatusTag.textContent = "Apunta la cámara al target…";
         });
