@@ -63,22 +63,36 @@
       margin-bottom: 4px;
     }
 
-    .search-wrapper i {
+    /* OJO: Lucide reemplaza el <i> original por un <svg>, así que un
+       selector de etiqueta como ".search-wrapper i" deja de aplicar en
+       cuanto el ícono se dibuja. Por eso el posicionamiento va sobre una
+       clase propia (.search-icon-btn), que Lucide sí conserva. */
+    .search-icon-btn {
       position: absolute;
-      left: 18px;
-      top: 0;
-      bottom: 0;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #555;
-      pointer-events: none; /* para que no bloquee los clics sobre el input */
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .search-icon-btn:active {
+      background: rgba(0, 0, 0, 0.06);
     }
 
     .search-input {
       width: 100%;
       height: 48px;
-      padding: 0 16px 0 48px;
+      padding: 0 52px 0 20px;
       border-radius: 25px;
       border: none;
       outline: none;
@@ -94,6 +108,14 @@
       flex-direction: column;
       gap: 14px;
       width: 100%;
+    }
+
+    .no-results {
+      display: none;
+      text-align: center;
+      color: #2b4b7a;
+      font-weight: bold;
+      padding: 24px 12px;
     }
 
     .card {
@@ -174,12 +196,14 @@
 
     <!-- Buscador -->
     <div class="search-wrapper">
-      <i data-lucide="search" style="width: 20px; height: 20px;"></i>
-      <input type="text" class="search-input" placeholder="Buscar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar" autocomplete="off">
+      <button type="button" class="search-icon-btn" id="searchIconBtn" aria-label="Buscar">
+        <i data-lucide="search" style="width: 20px; height: 20px;"></i>
+      </button>
     </div>
 
     <!-- Lista de todas las categorías con enlaces -->
-    <section class="category-list">
+    <section class="category-list" id="categoryList">
       <a href="realidad-aumentada.html" class="card card-ar">
         <span class="card-title">Realidad Aumentada</span>
         <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/33/33736.png" alt="Pelota de Béisbol">
@@ -215,10 +239,59 @@
         <img class="card-image" src="https://cdn-icons-png.flaticon.com/512/1375/1375106.png" alt="Galería Fotos">
       </a>
     </section>
+
+    <!-- Mensaje cuando la búsqueda no encuentra ningún apartado -->
+    <p class="no-results" id="noResults">No se encontró ningún apartado con ese nombre.</p>
   </main>
 
   <script>
-    lucide.createIcons();
+    // Si Lucide (los íconos, cargados desde una librería externa) no
+    // llega a cargar por algún motivo de red, que no tumbe el resto del
+    // script: así el buscador sigue funcionando aunque falte el ícono.
+    try {
+      lucide.createIcons();
+    } catch (e) {
+      console.warn("No se pudieron cargar los íconos de Lucide:", e);
+    }
+
+    // Buscador: filtra las tarjetas de apartados (Realidad Aumentada,
+    // Trivia, Filtros, etc.) según lo que se escriba, comparando contra
+    // el título de cada una. Ignora mayúsculas/minúsculas y acentos para
+    // que "estadisticas" también encuentre "Estadísticas".
+    const searchInput = document.getElementById("searchInput");
+    const searchIconBtn = document.getElementById("searchIconBtn");
+    const noResultsMsg = document.getElementById("noResults");
+    const cards = Array.from(document.querySelectorAll("#categoryList .card"));
+
+    function normalize(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, ""); // quita acentos
+    }
+
+    function filterCards() {
+      const query = normalize(searchInput.value.trim());
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const title = card.querySelector(".card-title");
+        const matches = query === "" || normalize(title.textContent).includes(query);
+        card.style.display = matches ? "" : "none";
+        if (matches) visibleCount++;
+      });
+
+      noResultsMsg.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", filterCards);
+
+    // El botón de la lupa también dispara la búsqueda (y le da foco al
+    // campo si el usuario lo toca antes de escribir).
+    searchIconBtn.addEventListener("click", () => {
+      searchInput.focus();
+      filterCards();
+    });
   </script>
 </body>
 </html>
