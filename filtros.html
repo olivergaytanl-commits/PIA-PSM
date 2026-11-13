@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Strike Zone - Filtros</title>
-  <!-- Iconos Lucide -->
+
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Confetti para feedback de guardado -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -20,11 +19,14 @@
 
     body {
       background-color: #b5d5f5;
-      margin: 0;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       overflow-x: hidden;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     .mobile-container {
@@ -35,10 +37,8 @@
       flex-direction: column;
       align-items: center;
       padding: 16px 16px 24px;
-      position: relative;
     }
 
-    /* Encabezado */
     .header-title {
       display: flex;
       align-items: center;
@@ -56,18 +56,10 @@
       color: #000;
     }
 
-    .header-icons {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
     .ball-icon {
       font-size: 24px;
-      line-height: 1;
     }
 
-    /* Tarjeta Principal Rosa / Morada */
     .filters-main-card {
       width: 100%;
       flex: 1;
@@ -77,11 +69,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
       position: relative;
     }
 
-    /* Banner Superior */
     .filters-banner {
       width: 100%;
       display: flex;
@@ -96,148 +87,185 @@
       font-weight: bold;
       color: #000;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .filters-banner img {
       width: 58px;
       height: 58px;
       object-fit: contain;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,.2));
     }
 
-    /* Contenedor del Video / Lienzo */
+    /* VISOR DEL GIF */
+
     .video-viewport {
       width: 100%;
       height: 380px;
-      background-color: #111;
+      background: #111;
       border-radius: 22px;
       position: relative;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+      box-shadow: inset 0 0 10px rgba(0,0,0,.4);
     }
 
-    video#targetVideo {
+    #targetGif {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      transition: filter 0.3s ease;
+      object-fit: contain;
+      transition: filter .3s ease;
+      display: none;
     }
 
-    /* Capa de los 5 cuadritos de filtros sobre el video */
+    .gif-placeholder {
+      color: white;
+      text-align: center;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
     .filters-palette {
       position: absolute;
       bottom: 14px;
       display: flex;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.45);
-      padding: 8px 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+      background: rgba(0,0,0,.55);
+      padding: 8px 10px;
       border-radius: 14px;
-      backdrop-filter: blur(4px);
       z-index: 5;
     }
 
     .filter-swatch {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 6px;
       cursor: pointer;
-      border: 2.5px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      transition: transform 0.15s ease, border-color 0.15s ease;
+      border: 2.5px solid rgba(255,255,255,.8);
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      transition: transform .15s ease;
     }
 
-    .filter-swatch:active,
     .filter-swatch.active {
       transform: scale(1.15);
-      border-color: #ffffff;
-      box-shadow: 0 0 10px #ffffff;
+      border-color: white;
+      box-shadow: 0 0 10px white;
     }
 
-    /* Degradados de los 5 botones de filtro */
+    .swatch-none {
+      background: linear-gradient(135deg, #fff, #999);
+    }
+
     .swatch-warm {
       background: linear-gradient(135deg, #ff7e5f, #feb47b);
     }
+
     .swatch-cool {
       background: linear-gradient(135deg, #1fa2ff, #12d8fa);
     }
+
     .swatch-vintage {
       background: linear-gradient(135deg, #e0eafc, #cfdef3);
     }
+
     .swatch-field {
       background: linear-gradient(135deg, #56ab2f, #a8e063);
     }
+
     .swatch-sunset {
       background: linear-gradient(135deg, #f7ce55, #4ca1af);
     }
 
-    /* Definición CSS de los 5 Filtros */
-    .filter-none { filter: none; }
-    .filter-warm { filter: sepia(0.35) saturate(1.8) contrast(1.1); }
-    .filter-cool { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
-    .filter-vintage { filter: grayscale(0.5) contrast(1.2) brightness(1.15); }
-    .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(0.95); }
-    .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2); }
+    /* FILTROS */
 
-    /* Tira de Equipos (debajo del video) para elegir de qué equipo
-       quieres ver videos precargados */
+    .filter-none { filter: none; }
+    .filter-warm { filter: sepia(.35) saturate(1.8) contrast(1.1); }
+    .filter-cool { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
+    .filter-vintage { filter: grayscale(.5) contrast(1.2) brightness(1.15); }
+    .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(.95); }
+    .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(.2); }
+
+    /* SELECTOR DE EQUIPOS */
+
     .team-strip-wrapper {
       width: 100%;
-      margin-top: 14px;
+      margin-top: 18px;
     }
 
     .team-strip-label {
-      color: #ffffff;
+      color: white;
       font-size: 12px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-      padding: 0 4px;
-      opacity: 0.95;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .team-carousel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .team-arrow {
+      flex: 0 0 34px;
+      width: 34px;
+      height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255,255,255,.85);
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    }
+
+    .team-arrow:disabled {
+      opacity: .35;
+      cursor: default;
     }
 
     .team-strip {
       display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding: 4px 4px 10px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .team-strip::-webkit-scrollbar {
-      display: none;
+      justify-content: center;
+      gap: 7px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .team-chip {
-      flex: 0 0 auto;
-      width: 64px;
+      flex: 1;
+      min-width: 0;
+      max-width: 78px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 5px;
       background: none;
       border: none;
-      padding: 0;
-      cursor: pointer;
+      padding: 3px 0;
     }
 
     .team-chip-logo {
       width: 52px;
       height: 52px;
-      background: #ffffff;
+      background: white;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 7px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,.2);
       border: 3px solid transparent;
-      transition: border-color 0.15s ease, transform 0.15s ease;
+      transition: .15s ease;
     }
 
     .team-chip-logo img {
@@ -247,22 +275,31 @@
     }
 
     .team-chip.selected .team-chip-logo {
-      border-color: #ffffff;
+      border-color: white;
       transform: scale(1.08);
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.75);
+      box-shadow: 0 0 10px rgba(255,255,255,.75);
     }
 
     .team-chip-name {
-      font-size: 10px;
-      font-weight: 700;
-      color: #ffffff;
+      font-size: 9px;
+      font-weight: 800;
+      color: white;
       text-align: center;
       text-transform: uppercase;
       line-height: 1.15;
-      max-width: 64px;
+      overflow-wrap: anywhere;
     }
 
-    /* Barra de Botones Inferiores */
+    .team-counter {
+      text-align: center;
+      font-size: 11px;
+      color: white;
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    /* BOTONES */
+
     .actions-bar {
       width: 100%;
       display: flex;
@@ -275,38 +312,35 @@
     .action-square-btn {
       width: 58px;
       height: 58px;
-      background: #ffffff;
+      background: white;
       border: 3px solid #111;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-      transition: transform 0.12s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,.18);
       color: #111;
     }
 
     .action-square-btn:active {
-      transform: scale(0.92);
+      transform: scale(.92);
     }
 
-    /* Modal emergente para elegir videos precargados */
+    /* MODAL DE GIF */
+
     .video-picker-modal {
       display: none;
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.65);
+      min-height: 100%;
+      background: rgba(0,0,0,.7);
       border-radius: 28px;
       z-index: 10;
       padding: 20px;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 12px;
       backdrop-filter: blur(4px);
     }
 
@@ -317,7 +351,7 @@
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .picker-card h3 {
@@ -328,51 +362,51 @@
     }
 
     .video-options-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 320px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      max-height: 360px;
       overflow-y: auto;
     }
 
     .video-option-btn {
       background: #f0f2f5;
-      border: none;
-      padding: 10px 14px;
+      border: 2px solid transparent;
+      padding: 7px;
       border-radius: 12px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s ease;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 700;
       width: 100%;
-      text-align: left;
+      color: #222;
     }
 
-    .video-option-btn:hover {
-      background: #e1e6ed;
+    .video-option-btn img {
+      width: 100%;
+      height: 85px;
+      object-fit: cover;
+      border-radius: 7px;
+      background: #222;
     }
 
     .video-option-btn.active {
-      background: #d880bc;
-      color: #ffffff;
+      border-color: #9e5ba8;
+      background: #f7e4f3;
     }
 
     .close-modal-btn {
       background: #e85375;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 9px 16px;
       border-radius: 12px;
       font-weight: bold;
-      cursor: pointer;
       align-self: center;
-      margin-top: 4px;
     }
 
-    /* Botón Home Inferior */
     .home-container {
       margin-top: 16px;
       display: flex;
@@ -388,262 +422,389 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
+      color: white;
       text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      transition: transform 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,.25);
     }
 
-    .home-btn:active {
-      transform: scale(0.92);
+    @media (max-width: 360px) {
+      .video-viewport {
+        height: 320px;
+      }
+
+      .team-chip-logo {
+        width: 44px;
+        height: 44px;
+      }
+
+      .team-arrow {
+        flex-basis: 29px;
+        width: 29px;
+      }
     }
   </style>
 </head>
+
 <body>
+<main class="mobile-container">
 
-  <main class="mobile-container">
-    <!-- Encabezado -->
-    <header class="header-title">
-      <h1>Strike Zone</h1>
-      <div class="header-icons">
-        <span class="ball-icon">⚾</span>
-        <i data-lucide="heart" style="width: 22px; height: 22px; fill: #ff4757; color: #ff4757;"></i>
-      </div>
-    </header>
+  <header class="header-title">
+    <h1>Strike Zone</h1>
+    <span class="ball-icon">⚾</span>
+    <i data-lucide="heart" style="width:22px;height:22px;fill:#ff4757;color:#ff4757;"></i>
+  </header>
 
-    <!-- Tarjeta Principal de Filtros -->
-    <div class="filters-main-card">
-      <div class="filters-banner">
-        <h2>Filtros</h2>
-        <img src="https://cdn-icons-png.flaticon.com/512/4406/4406319.png" alt="Cámara Filtros 3D">
-      </div>
+  <div class="filters-main-card">
 
-      <!-- Contenedor del Video -->
-      <div class="video-viewport">
-        <video id="targetVideo" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80">
-          <source id="videoSource" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-        </video>
+    <div class="filters-banner">
+      <h2>Filtros</h2>
+      <img src="https://cdn-icons-png.flaticon.com/512/4406/4406319.png" alt="Cámara">
+    </div>
 
-        <!-- Los 5 cuadritos de selección de filtro -->
-        <div class="filters-palette">
-          <div class="filter-swatch swatch-warm active" data-filter="filter-warm" title="Filtro Cálido"></div>
-          <div class="filter-swatch swatch-cool" data-filter="filter-cool" title="Filtro Frío"></div>
-          <div class="filter-swatch swatch-vintage" data-filter="filter-vintage" title="Filtro Vintage"></div>
-          <div class="filter-swatch swatch-field" data-filter="filter-field" title="Filtro Campo Verde"></div>
-          <div class="filter-swatch swatch-sunset" data-filter="filter-sunset" title="Filtro Atardecer"></div>
-        </div>
+    <!-- VISOR DEL GIF -->
+    <div class="video-viewport">
+
+      <div class="gif-placeholder" id="gifPlaceholder">
+        <i data-lucide="image" style="width:45px;height:45px;"></i>
+        <p>Selecciona un equipo y después elige uno de sus GIF.</p>
       </div>
 
-      <!-- Tira de Equipos: elige uno para ver sus 8 videos precargados -->
-      <div class="team-strip-wrapper">
-        <div class="team-strip-label">Elige un equipo para ver sus videos</div>
+      <img id="targetGif" alt="GIF seleccionado">
+
+      <!-- FILTROS -->
+      <div class="filters-palette">
+
+        <button class="filter-swatch swatch-none"
+          data-filter="filter-none" title="Sin filtro" aria-label="Sin filtro"></button>
+
+        <button class="filter-swatch swatch-warm"
+          data-filter="filter-warm" title="Cálido" aria-label="Cálido"></button>
+
+        <button class="filter-swatch swatch-cool"
+          data-filter="filter-cool" title="Frío" aria-label="Frío"></button>
+
+        <button class="filter-swatch swatch-vintage"
+          data-filter="filter-vintage" title="Vintage" aria-label="Vintage"></button>
+
+        <button class="filter-swatch swatch-field"
+          data-filter="filter-field" title="Campo verde" aria-label="Campo verde"></button>
+
+        <button class="filter-swatch swatch-sunset"
+          data-filter="filter-sunset" title="Atardecer" aria-label="Atardecer"></button>
+
+      </div>
+    </div>
+
+    <!-- SELECTOR DE EQUIPOS -->
+    <div class="team-strip-wrapper">
+
+      <div class="team-strip-label">
+        Elige un equipo
+      </div>
+
+      <div class="team-carousel">
+
+        <button class="team-arrow" id="prevTeam" aria-label="Equipos anteriores">
+          <i data-lucide="chevron-left"></i>
+        </button>
+
         <div class="team-strip" id="teamStrip"></div>
-      </div>
 
-      <!-- Acciones: Galería de videos y Guardar -->
-      <div class="actions-bar">
-        <!-- Botón Galería: Abre selector de videos precargados -->
-        <button class="action-square-btn" id="openPickerBtn" aria-label="Ver videos del equipo elegido">
-          <i data-lucide="image" style="width: 32px; height: 32px; stroke-width: 2.2;"></i>
+        <button class="team-arrow" id="nextTeam" aria-label="Equipos siguientes">
+          <i data-lucide="chevron-right"></i>
         </button>
 
-        <!-- Botón Guardar Video Editado -->
-        <button class="action-square-btn" id="saveVideoBtn" aria-label="Guardar Video">
-          <i data-lucide="bookmark" style="width: 32px; height: 32px; stroke-width: 2.2;"></i>
-        </button>
       </div>
 
-      <!-- Modal para Elegir Videos Precargados (el contenido de la lista
-           se llena por JS según el equipo elegido en la tira de arriba) -->
-      <div class="video-picker-modal" id="videoModal">
-        <div class="picker-card">
-          <h3 id="pickerTitle">Selecciona un Video Precargado</h3>
-          <div class="video-options-list" id="videoOptionsList"></div>
-          <button class="close-modal-btn" id="closeModalBtn">Cerrar</button>
-        </div>
+      <div class="team-counter" id="teamCounter">1 - 3 de 15</div>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="actions-bar">
+
+      <button class="action-square-btn" id="openPickerBtn"
+        aria-label="Ver GIF del equipo">
+        <i data-lucide="image" style="width:32px;height:32px;"></i>
+      </button>
+
+      <button class="action-square-btn" id="saveGifBtn"
+        aria-label="Guardar GIF">
+        <i data-lucide="bookmark" style="width:32px;height:32px;"></i>
+      </button>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="video-picker-modal" id="gifModal">
+
+      <div class="picker-card">
+
+        <h3 id="pickerTitle">GIF del equipo</h3>
+
+        <div class="video-options-list" id="gifOptionsList"></div>
+
+        <button class="close-modal-btn" id="closeModalBtn">
+          Cerrar
+        </button>
+
       </div>
     </div>
 
-    <!-- Botón Inicio -->
-    <div class="home-container">
-      <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
-        <i data-lucide="home" style="width: 28px; height: 28px;"></i>
-      </a>
-    </div>
-  </main>
+  </div>
 
-  <script>
-    try {
-      lucide.createIcons();
-    } catch (e) {
-      console.warn("No se pudieron cargar los íconos de Lucide:", e);
-    }
+  <div class="home-container">
+    <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
+      <i data-lucide="home" style="width:28px;height:28px;"></i>
+    </a>
+  </div>
 
-    const video = document.getElementById("targetVideo");
-    const videoSource = document.getElementById("videoSource");
-    const swatches = document.querySelectorAll(".filter-swatch");
-    const openPickerBtn = document.getElementById("openPickerBtn");
-    const videoModal = document.getElementById("videoModal");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-    const saveVideoBtn = document.getElementById("saveVideoBtn");
-    const teamStrip = document.getElementById("teamStrip");
-    const pickerTitle = document.getElementById("pickerTitle");
-    const videoOptionsList = document.getElementById("videoOptionsList");
+</main>
 
-    // Mismos 15 equipos que ya tenemos en la Wiki (wiki.html /
-    // equipo-detalle.html), para mantener un solo catálogo consistente.
-    const teamsCatalog = [
-      { id: "yankees", name: "Yankees", logo: "https://www.mlbstatic.com/team-logos/147.svg" },
-      { id: "athletics", name: "Athletics", logo: "https://www.mlbstatic.com/team-logos/133.svg" },
-      { id: "mariners", name: "Mariners", logo: "https://www.mlbstatic.com/team-logos/136.svg" },
-      { id: "redsox", name: "Red Sox", logo: "https://www.mlbstatic.com/team-logos/111.svg" },
-      { id: "astros", name: "Astros", logo: "https://www.mlbstatic.com/team-logos/117.svg" },
-      { id: "rangers", name: "Rangers", logo: "https://www.mlbstatic.com/team-logos/140.svg" },
-      { id: "angels", name: "Angels", logo: "https://www.mlbstatic.com/team-logos/108.svg" },
-      { id: "orioles", name: "Orioles", logo: "https://www.mlbstatic.com/team-logos/110.svg" },
-      { id: "bluejays", name: "Blue Jays", logo: "https://www.mlbstatic.com/team-logos/141.svg" },
-      { id: "guardians", name: "Guardians", logo: "https://www.mlbstatic.com/team-logos/114.svg" },
-      { id: "cubs", name: "Cubs", logo: "https://www.mlbstatic.com/team-logos/112.svg" },
-      { id: "cardinals", name: "Cardinals", logo: "https://www.mlbstatic.com/team-logos/138.svg" },
-      { id: "giants", name: "Giants", logo: "https://www.mlbstatic.com/team-logos/137.svg" },
-      { id: "padres", name: "Padres", logo: "https://www.mlbstatic.com/team-logos/135.svg" },
-      { id: "braves", name: "Braves", logo: "https://www.mlbstatic.com/team-logos/144.svg" }
-    ];
+<script>
+  lucide.createIcons();
 
-    // Set de 8 videos de muestra (placeholder) que se usan por defecto
-    // para cualquier equipo que todavía no tenga sus propios clips.
-    const sampleVideoPool = [
-      { title: "Jugada en el Diamante", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-      { title: "Entrenamiento y Bateo", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-      { title: "Celebración en el Estadio", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-      { title: "Lanzamiento Estelar", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-      { title: "Doble Play Espectacular", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-      { title: "Jonrón Decisivo", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-      { title: "Calentamiento Previo al Juego", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
-      { title: "Festejo de Victoria", src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" }
-    ];
+  // EQUIPOS
+  const teamsCatalog = [
+    { id: "yankees", name: "Yankees", logo: "147" },
+    { id: "athletics", name: "Athletics", logo: "133" },
+    { id: "mariners", name: "Mariners", logo: "136" },
+    { id: "redsox", name: "Red Sox", logo: "111" },
+    { id: "astros", name: "Astros", logo: "117" },
+    { id: "rangers", name: "Rangers", logo: "140" },
+    { id: "angels", name: "Angels", logo: "108" },
+    { id: "orioles", name: "Orioles", logo: "110" },
+    { id: "bluejays", name: "Blue Jays", logo: "141" },
+    { id: "guardians", name: "Guardians", logo: "114" },
+    { id: "cubs", name: "Cubs", logo: "112" },
+    { id: "cardinals", name: "Cardinals", logo: "138" },
+    { id: "giants", name: "Giants", logo: "137" },
+    { id: "padres", name: "Padres", logo: "135" },
+    { id: "braves", name: "Braves", logo: "144" }
+  ];
 
-    // Para darle a un equipo sus propios 8 videos reales (en cuanto los
-    // tengas), agrega aquí una entrada con su id y un arreglo de hasta 8
-    // objetos { title, src }. Mientras un equipo no tenga entrada propia,
-    // usa el set de muestra de arriba. Ejemplo:
-    // const teamVideoLibrary = {
-    //   yankees: [
-    //     { title: "Jonrón de Judge", src: "videos/yankees/1.mp4" },
-    //     ... hasta 8
-    //   ]
-    // };
-    const teamVideoLibrary = {};
+  // NOMBRES DE LOS FILTROS
+  const filterNames = {
+    "filter-none": "Sin filtro",
+    "filter-warm": "Cálido",
+    "filter-cool": "Frío",
+    "filter-vintage": "Vintage",
+    "filter-field": "Campo verde",
+    "filter-sunset": "Atardecer"
+  };
 
-    function getVideosForTeam(teamId) {
-      return teamVideoLibrary[teamId] || sampleVideoPool;
-    }
+  // ELEMENTOS
+  const targetGif = document.getElementById("targetGif");
+  const gifPlaceholder = document.getElementById("gifPlaceholder");
+  const teamStrip = document.getElementById("teamStrip");
+  const teamCounter = document.getElementById("teamCounter");
+  const prevTeam = document.getElementById("prevTeam");
+  const nextTeam = document.getElementById("nextTeam");
+  const gifModal = document.getElementById("gifModal");
+  const gifOptionsList = document.getElementById("gifOptionsList");
+  const pickerTitle = document.getElementById("pickerTitle");
+  const swatches = document.querySelectorAll(".filter-swatch");
 
-    let selectedTeamId = null;
+  // ESTADO
+  let teamStartIndex = 0;
+  let selectedTeamId = null;
+  let selectedGifUrl = null;
+  let selectedGifName = null;
+  let currentFilterClass = "filter-none";
 
-    let currentFilterClass = "filter-warm";
-    video.className = currentFilterClass;
+  // RUTA DE LOS GIF:
+  // assets/gifs/id-del-equipo/gif1.gif ... gif8.gif
 
-    // Cambiar Filtro en tiempo real al hacer clic en los recuadros
-    swatches.forEach(swatch => {
-      swatch.addEventListener("click", () => {
-        swatches.forEach(s => s.classList.remove("active"));
-        swatch.classList.add("active");
+  function getGifsForTeam(teamId) {
+    return Array.from({ length: 8 }, (_, index) => {
+      const number = index + 1;
 
-        const selectedFilter = swatch.dataset.filter;
-        video.className = selectedFilter;
-        currentFilterClass = selectedFilter;
-      });
+      return {
+        title: `GIF ${number}`,
+        src: `assets/gifs/${teamId}/gif${number}.gif`
+      };
     });
+  }
 
-    // Dibuja la tira de equipos debajo del video
-    teamStrip.innerHTML = teamsCatalog.map(team => `
-      <button type="button" class="team-chip" data-team="${team.id}" aria-label="${team.name}">
-        <span class="team-chip-logo"><img src="${team.logo}" alt="${team.name}"></span>
+  // SELECTOR DE EQUIPOS: MUESTRA TRES A LA VEZ
+  function renderTeams() {
+    const visibleTeams = teamsCatalog.slice(
+      teamStartIndex,
+      teamStartIndex + 3
+    );
+
+    teamStrip.innerHTML = visibleTeams.map(team => `
+      <button type="button"
+        class="team-chip ${selectedTeamId === team.id ? "selected" : ""}"
+        data-team="${team.id}">
+
+        <span class="team-chip-logo">
+          <img
+            src="https://www.mlbstatic.com/team-logos/${team.logo}.svg"
+            alt="${team.name}"
+          >
+        </span>
+
         <span class="team-chip-name">${team.name}</span>
       </button>
     `).join("");
 
-    const teamChips = teamStrip.querySelectorAll(".team-chip");
+    teamCounter.textContent =
+      `${teamStartIndex + 1} - ${teamStartIndex + visibleTeams.length} de ${teamsCatalog.length}`;
 
-    // Llena el modal con los 8 videos del equipo indicado y lo abre
-    function openVideoPickerForTeam(teamId) {
-      const team = teamsCatalog.find(t => t.id === teamId);
-      if (!team) return;
+    prevTeam.disabled = teamStartIndex === 0;
+    nextTeam.disabled = teamStartIndex >= teamsCatalog.length - 3;
 
-      selectedTeamId = teamId;
+    lucide.createIcons();
+  }
 
-      teamChips.forEach(chip => {
-        chip.classList.toggle("selected", chip.dataset.team === teamId);
-      });
+  prevTeam.addEventListener("click", () => {
+    if (teamStartIndex > 0) {
+      teamStartIndex--;
+      renderTeams();
+    }
+  });
 
-      pickerTitle.textContent = `Videos de los ${team.name}`;
+  nextTeam.addEventListener("click", () => {
+    if (teamStartIndex < teamsCatalog.length - 3) {
+      teamStartIndex++;
+      renderTeams();
+    }
+  });
 
-      const videos = getVideosForTeam(teamId);
-      videoOptionsList.innerHTML = videos.map((v, index) => `
-        <button type="button" class="video-option-btn" data-src="${v.src}">
-          <i data-lucide="video" style="width: 18px; height: 18px;"></i> Video ${index + 1}: ${v.title}
-        </button>
-      `).join("");
+  // ABRIR SELECTOR DE GIF DE UN EQUIPO
+  function openGifPicker(teamId) {
+    const team = teamsCatalog.find(t => t.id === teamId);
+    if (!team) return;
 
-      try { lucide.createIcons(); } catch (e) { /* noop si Lucide no cargó */ }
+    selectedTeamId = teamId;
+    renderTeams();
 
-      videoModal.style.display = "flex";
+    pickerTitle.textContent = `GIF de ${team.name}`;
+
+    const gifs = getGifsForTeam(teamId);
+
+    gifOptionsList.innerHTML = gifs.map(gif => `
+      <button type="button"
+        class="video-option-btn ${selectedGifUrl === gif.src ? "active" : ""}"
+        data-src="${gif.src}"
+        data-name="${gif.title}">
+
+        <img src="${gif.src}" alt="${gif.title}"
+          onerror="this.style.display='none'; this.parentElement.insertAdjacentText('afterbegin','No se encontró el GIF');">
+
+        <span>${gif.title}</span>
+      </button>
+    `).join("");
+
+    gifModal.style.display = "flex";
+  }
+
+  // CLICK EN UNO DE LOS TRES EQUIPOS
+  teamStrip.addEventListener("click", event => {
+    const chip = event.target.closest(".team-chip");
+    if (!chip) return;
+
+    openGifPicker(chip.dataset.team);
+  });
+
+  // BOTÓN PARA VOLVER A ABRIR LOS GIF DEL EQUIPO
+  document.getElementById("openPickerBtn").addEventListener("click", () => {
+    if (!selectedTeamId) {
+      alert("Primero selecciona un equipo.");
+      return;
     }
 
-    // Elegir equipo en la tira -> abre sus 8 videos
-    teamChips.forEach(chip => {
-      chip.addEventListener("click", () => {
-        openVideoPickerForTeam(chip.dataset.team);
+    openGifPicker(selectedTeamId);
+  });
+
+  // SELECCIONAR GIF
+  gifOptionsList.addEventListener("click", event => {
+    const button = event.target.closest(".video-option-btn");
+    if (!button) return;
+
+    selectedGifUrl = button.dataset.src;
+    selectedGifName = button.dataset.name;
+
+    targetGif.src = selectedGifUrl;
+    targetGif.style.display = "block";
+    gifPlaceholder.style.display = "none";
+
+    targetGif.className = currentFilterClass;
+
+    gifOptionsList.querySelectorAll(".video-option-btn")
+      .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    gifModal.style.display = "none";
+  });
+
+  // CERRAR MODAL
+  document.getElementById("closeModalBtn").addEventListener("click", () => {
+    gifModal.style.display = "none";
+  });
+
+  // CAMBIAR FILTRO
+  swatches.forEach(swatch => {
+    swatch.addEventListener("click", () => {
+      swatches.forEach(item => item.classList.remove("active"));
+      swatch.classList.add("active");
+
+      currentFilterClass = swatch.dataset.filter;
+      targetGif.className = currentFilterClass;
+    });
+  });
+
+  // GUARDAR EN GALERÍA
+  document.getElementById("saveGifBtn").addEventListener("click", () => {
+    if (!selectedGifUrl || !selectedTeamId) {
+      alert("Primero selecciona un equipo y uno de sus GIF.");
+      return;
+    }
+
+    const team = teamsCatalog.find(t => t.id === selectedTeamId);
+
+    const savedItem = {
+      id: Date.now(),
+      type: "gif",
+      gifUrl: selectedGifUrl,
+      teamId: selectedTeamId,
+      teamName: team.name,
+      mediaName: selectedGifName,
+      appliedFilter: currentFilterClass,
+      filterName: filterNames[currentFilterClass],
+      date: new Date().toLocaleDateString()
+    };
+
+    const existing = JSON.parse(
+      localStorage.getItem("strike_gallery") || "[]"
+    );
+
+    existing.push(savedItem);
+
+    localStorage.setItem(
+      "strike_gallery",
+      JSON.stringify(existing)
+    );
+
+    if (typeof confetti === "function") {
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.6 }
       });
-    });
+    }
 
-    // Botón de galería: reabre el selector del equipo ya elegido; si
-    // todavía no se ha elegido ninguno, avisa que hay que elegir uno abajo.
-    openPickerBtn.addEventListener("click", () => {
-      if (selectedTeamId) {
-        openVideoPickerForTeam(selectedTeamId);
-      } else {
-        alert("Primero elige un equipo en la lista de abajo para ver sus videos.");
-        teamStrip.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    });
+    alert("¡GIF guardado exitosamente en tu Galería!");
+  });
 
-    closeModalBtn.addEventListener("click", () => {
-      videoModal.style.display = "none";
-    });
+  // INICIAR
+  renderTeams();
 
-    // Cargar el video elegido dentro del modal. Como la lista se vuelve a
-    // generar cada vez (depende del equipo), el click se escucha sobre el
-    // contenedor (delegación de eventos) en vez de sobre cada botón.
-    videoOptionsList.addEventListener("click", (event) => {
-      const btn = event.target.closest(".video-option-btn");
-      if (!btn) return;
+  // Seleccionar el primer equipo por defecto
+  selectedTeamId = teamsCatalog[0].id;
+  renderTeams();
+</script>
 
-      videoSource.src = btn.dataset.src;
-      video.load();
-      video.play();
-      videoModal.style.display = "none";
-    });
-
-    // Guardar Video Editado (Guarda en localStorage para la Galería)
-    saveVideoBtn.addEventListener("click", () => {
-      const savedItem = {
-        id: Date.now(),
-        videoUrl: videoSource.src,
-        appliedFilter: currentFilterClass,
-        date: new Date().toLocaleDateString()
-      };
-
-      // Guardado local
-      const existing = JSON.parse(localStorage.getItem("strike_gallery") || "[]");
-      existing.push(savedItem);
-      localStorage.setItem("strike_gallery", JSON.stringify(existing));
-
-      // Feedback visual
-      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
-      alert("¡Video con filtro guardado exitosamente en tu Galería!");
-    });
-  </script>
 </body>
 </html>

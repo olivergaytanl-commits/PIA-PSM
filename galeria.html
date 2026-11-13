@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Strike Zone - Galería</title>
-  <!-- Iconos Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -32,7 +32,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px 16px 95px; /* Espacio inferior para no tapar el contenido */
+      padding: 16px 16px 95px;
       position: relative;
     }
 
@@ -59,7 +59,7 @@
       line-height: 1;
     }
 
-    /* Tarjeta Principal Amarilla / Naranja */
+    /* Tarjeta principal */
     .gallery-main-card {
       width: 100%;
       background: linear-gradient(180deg, #f7d455 0%, #ed8426 100%);
@@ -72,7 +72,7 @@
       position: relative;
     }
 
-    /* Banner Superior */
+    /* Banner */
     .gallery-banner {
       width: 100%;
       display: flex;
@@ -97,7 +97,7 @@
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
     }
 
-    /* Grillas de Fotos */
+    /* Grilla */
     .gallery-grid {
       display: flex;
       flex-direction: column;
@@ -105,7 +105,6 @@
       width: 100%;
     }
 
-    /* Banners Horizontales Grandes */
     .wide-card {
       width: 100%;
       height: 140px;
@@ -120,11 +119,11 @@
 
     .wide-card:active,
     .tall-card:active,
-    .square-card:active {
+    .square-card:active,
+    .saved-gif-card:active {
       transform: scale(0.97);
     }
 
-    /* Fila de 3 Tarjetas Verticales */
     .row-three {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -143,7 +142,6 @@
       transition: transform 0.15s ease;
     }
 
-    /* Fila de 2 Tarjetas Cuadradas */
     .row-two {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -162,7 +160,6 @@
       transition: transform 0.15s ease;
     }
 
-    /* Elementos Multimedia e Imágenes */
     .media-item {
       width: 100%;
       height: 100%;
@@ -201,14 +198,107 @@
       backdrop-filter: blur(2px);
     }
 
-    /* Filtros para videos */
-    .filter-warm { filter: sepia(0.35) saturate(1.8) contrast(1.1); }
-    .filter-cool { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
-    .filter-vintage { filter: grayscale(0.5) contrast(1.2) brightness(1.15); }
-    .filter-field { filter: hue-rotate(65deg) saturate(2) brightness(0.95); }
-    .filter-sunset { filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2); }
+    /* Filtros */
+    .filter-warm {
+      filter: sepia(0.35) saturate(1.8) contrast(1.1);
+    }
 
-    /* Visor Modal Pantalla Completa */
+    .filter-cool {
+      filter: hue-rotate(180deg) saturate(1.2) brightness(1.05);
+    }
+
+    .filter-vintage {
+      filter: grayscale(0.5) contrast(1.2) brightness(1.15);
+    }
+
+    .filter-field {
+      filter: hue-rotate(65deg) saturate(2) brightness(0.95);
+    }
+
+    .filter-sunset {
+      filter: contrast(1.3) brightness(1.1) saturate(1.7) sepia(0.2);
+    }
+
+    /* Secciones de contenido guardado */
+    .saved-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .saved-section-title {
+      font-weight: 900;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: #111;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.25);
+      padding-bottom: 7px;
+    }
+
+    .saved-section-description {
+      font-size: 11px;
+      color: #333;
+      margin-top: -5px;
+    }
+
+    /* Separación por equipo */
+    .team-gallery-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-top: 8px;
+    }
+
+    .team-gallery-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #111;
+      text-transform: uppercase;
+      padding: 7px 9px;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 10px;
+    }
+
+    .team-gallery-title img {
+      width: 27px;
+      height: 27px;
+      object-fit: contain;
+    }
+
+    .saved-gif-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      width: 100%;
+    }
+
+    .saved-gif-card {
+      height: 125px;
+      background: #73b9e5;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s ease;
+    }
+
+    .saved-empty {
+      text-align: center;
+      padding: 15px 8px;
+      font-size: 12px;
+      color: #333;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+    }
+
+    /* Visor modal */
     .viewer-modal {
       display: none;
       position: fixed;
@@ -258,7 +348,7 @@
       cursor: pointer;
     }
 
-    /* Botón Home Flotante Fijo */
+    /* Botón inicio */
     .home-container {
       position: fixed;
       bottom: 20px;
@@ -292,103 +382,143 @@
     }
   </style>
 </head>
+
 <body>
 
   <main class="mobile-container">
+
     <header class="header-title">
       <h1>Strike Zone</h1>
       <span class="ball-icon">⚾</span>
     </header>
 
     <div class="gallery-main-card">
+
       <div class="gallery-banner">
         <h2>Galería</h2>
-        <img src="https://cdn-icons-png.flaticon.com/512/1375/1375106.png" alt="Fotos Galería">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1375/1375106.png"
+          alt="Fotos Galería">
       </div>
 
-      <!-- Cuadrícula Expandida con Múltiples Imágenes -->
       <section class="gallery-grid" id="galleryGrid">
-        
-        <!-- Banners Grandes Superiores -->
-        <div class="wide-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80', 'Estadio al Atardecer')">
-          <img class="media-item" src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80" alt="Estadio">
+
+        <!-- Imágenes de ejemplo originales -->
+        <div class="wide-card"
+          onclick="openPhotoViewer('https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80', 'Estadio al Atardecer')">
+          <img class="media-item"
+            src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&auto=format&fit=crop&q=80"
+            alt="Estadio">
           <span class="card-label">Estadio MLB</span>
         </div>
 
-        <div class="wide-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80', 'Guante y Pelota Clásica')">
-          <img class="media-item" src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80" alt="Béisbol">
+        <div class="wide-card"
+          onclick="openPhotoViewer('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80', 'Guante y Pelota Clásica')">
+          <img class="media-item"
+            src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&auto=format&fit=crop&q=80"
+            alt="Béisbol">
           <span class="card-label">Guante & Cuero</span>
         </div>
 
-        <!-- Fila de 3 Tarjetas Verticales -->
         <div class="row-three">
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80', 'Bateador Profesional')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80" alt="Bateo">
+
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80', 'Bateador Profesional')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1562077772-3bd90403f7f0?w=600&auto=format&fit=crop&q=80"
+              alt="Bateo">
             <span class="card-label">Swing</span>
           </div>
 
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80', 'Lanzamiento del Pitcher')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80" alt="Pitcher">
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80', 'Lanzamiento del Pitcher')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1516731415730-0c607149933a?w=600&auto=format&fit=crop&q=80"
+              alt="Pitcher">
             <span class="card-label">Pitch</span>
           </div>
 
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80', 'Diamante de Juego')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80" alt="Diamante">
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80', 'Diamante de Juego')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=80"
+              alt="Diamante">
             <span class="card-label">Campo</span>
           </div>
+
         </div>
 
-        <!-- Fila de 2 Tarjetas Medianas -->
         <div class="row-two">
-          <div class="square-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80', 'Pelota en el Aire')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80" alt="Acción">
+
+          <div class="square-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80', 'Pelota en el Aire')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&auto=format&fit=crop&q=80"
+              alt="Acción">
             <span class="card-label">Acción</span>
           </div>
 
-          <div class="square-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80', 'Banquillo y Cascos')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80" alt="Dugout">
+          <div class="square-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80', 'Banquillo y Cascos')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=600&auto=format&fit=crop&q=80"
+              alt="Dugout">
             <span class="card-label">Dugout</span>
           </div>
+
         </div>
 
-        <!-- Fila de 3 Tarjetas Adicionales -->
         <div class="row-three">
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80', 'Entrenamiento de Bateo')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80" alt="Entrenamiento">
+
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80', 'Entrenamiento de Bateo')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80"
+              alt="Entrenamiento">
             <span class="card-label">Training</span>
           </div>
 
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80', 'Celebración de Home Run')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80" alt="Celebración">
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80', 'Celebración de Home Run')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1519766304817-4f37bda74a29?w=600&auto=format&fit=crop&q=80"
+              alt="Celebración">
             <span class="card-label">Triunfo</span>
           </div>
 
-          <div class="tall-card" onclick="openPhotoViewer('https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80', 'Luces del Estadio Nocturno')">
-            <img class="media-item" src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80" alt="Noche">
+          <div class="tall-card"
+            onclick="openPhotoViewer('https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80', 'Luces del Estadio Nocturno')">
+            <img class="media-item"
+              src="https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&auto=format&fit=crop&q=80"
+              alt="Noche">
             <span class="card-label">Noche</span>
           </div>
+
         </div>
 
-        <!-- Contenedor dinámico para Videos Guardados desde Filtros -->
+        <!-- Aquí se cargarán las fotos de RA y los GIF guardados -->
         <div id="savedVideosContainer"></div>
 
       </section>
     </div>
 
-    <!-- Botón Inicio Fijo -->
+    <!-- Botón Inicio -->
     <div class="home-container">
       <a href="index.html" class="home-btn" aria-label="Ir al Inicio">
         <i data-lucide="home" style="width: 26px; height: 26px;"></i>
       </a>
     </div>
 
-    <!-- Modal Visor Pantalla Completa -->
+    <!-- Visor -->
     <div class="viewer-modal" id="viewerModal">
       <div class="viewer-content-box" id="viewerBox"></div>
-      <button class="close-viewer-btn" id="closeViewerBtn" aria-label="Cerrar visor">
+
+      <button class="close-viewer-btn" id="closeViewerBtn"
+        aria-label="Cerrar visor">
         <i data-lucide="x" style="width: 26px; height: 26px;"></i>
       </button>
     </div>
+
   </main>
 
   <script>
@@ -399,75 +529,345 @@
     const closeViewerBtn = document.getElementById("closeViewerBtn");
     const savedVideosContainer = document.getElementById("savedVideosContainer");
 
-    // Abrir visor con Imagen
+    // Abrir imagen o GIF
     function openPhotoViewer(url, title) {
-      viewerBox.innerHTML = `<img src="${url}" alt="${title}">`;
+      viewerBox.innerHTML = "";
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = title || "Imagen guardada";
+
+      viewerBox.appendChild(img);
       viewerModal.style.display = "flex";
-      lucide.createIcons();
     }
 
-    // Abrir visor con Video Guardado
+    // Abrir GIF guardado
+    function openGifViewer(gifUrl, filterClass) {
+      viewerBox.innerHTML = "";
+
+      const img = document.createElement("img");
+      img.src = gifUrl;
+      img.alt = "GIF guardado";
+      img.className = filterClass || "";
+
+      viewerBox.appendChild(img);
+      viewerModal.style.display = "flex";
+    }
+
+    // Abrir video antiguo
     function openVideoViewer(videoUrl, filterClass) {
-      viewerBox.innerHTML = `
-        <video class="${filterClass || ''}" controls autoplay loop style="width: 100%; height: 100%;">
-          <source src="${videoUrl}" type="video/mp4">
-        </video>
-      `;
+      viewerBox.innerHTML = "";
+
+      const video = document.createElement("video");
+      video.className = filterClass || "";
+      video.controls = true;
+      video.autoplay = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.style.width = "100%";
+      video.style.height = "100%";
+
+      const source = document.createElement("source");
+      source.src = videoUrl;
+      source.type = "video/mp4";
+
+      video.appendChild(source);
+      viewerBox.appendChild(video);
+
       viewerModal.style.display = "flex";
-      lucide.createIcons();
     }
 
+    // Cerrar visor
     closeViewerBtn.addEventListener("click", () => {
       viewerBox.innerHTML = "";
       viewerModal.style.display = "none";
     });
 
-    // Cargar fotos y videos guardados desde localStorage (RA / Filtros)
-    // Cada item puede ser:
-    //   - Foto:  { type: "photo", photoUrl, date }        (tomada en Realidad Aumentada)
-    //   - Video: { videoUrl, appliedFilter, date }         (guardado desde Filtros)
-    const savedGallery = JSON.parse(localStorage.getItem("strike_gallery") || "[]");
-    if (savedGallery.length > 0) {
-      savedVideosContainer.innerHTML = `
-        <div style="font-weight: 800; font-size: 14px; text-transform: uppercase; margin: 10px 0 4px; color: #111;">
-          Tus Creaciones Guardadas (${savedGallery.length})
-        </div>
-      `;
+    // También cerrar al tocar el fondo
+    viewerModal.addEventListener("click", (event) => {
+      if (event.target === viewerModal) {
+        viewerBox.innerHTML = "";
+        viewerModal.style.display = "none";
+      }
+    });
 
-      let photoCount = 0;
-      let videoCount = 0;
+    // Leer contenido guardado
+    let savedGallery = [];
 
-      savedGallery.forEach((item) => {
-        const isPhoto = item.type === "photo" || (!!item.photoUrl && !item.videoUrl);
-        const card = document.createElement("div");
-        card.className = "wide-card";
-        card.style.marginTop = "8px";
+    try {
+      savedGallery = JSON.parse(
+        localStorage.getItem("strike_gallery") || "[]"
+      );
 
-        if (isPhoto) {
-          photoCount++;
-          card.innerHTML = `
-            <img class="media-item" src="${item.photoUrl}" alt="Foto guardada">
-            <span class="card-label">Foto RA #${photoCount}</span>
-          `;
-          card.onclick = () => openPhotoViewer(item.photoUrl, `Foto guardada (${item.date || ""})`);
-        } else {
-          videoCount++;
-          card.innerHTML = `
-            <video class="media-item ${item.appliedFilter || ''}" muted playsinline>
-              <source src="${item.videoUrl}" type="video/mp4">
-            </video>
-            <div class="play-badge">
-              <i data-lucide="play" style="width: 20px; height: 20px; fill: white;"></i>
-            </div>
-            <span class="card-label">Video Guardado #${videoCount}</span>
-          `;
-          card.onclick = () => openVideoViewer(item.videoUrl, item.appliedFilter);
+      if (!Array.isArray(savedGallery)) {
+        savedGallery = [];
+      }
+    } catch (error) {
+      console.error("Error al leer la galería:", error);
+      savedGallery = [];
+    }
+
+    // Crear encabezado de sección
+    function createSectionTitle(title, description) {
+      const section = document.createElement("div");
+      section.className = "saved-section";
+
+      const heading = document.createElement("h3");
+      heading.className = "saved-section-title";
+      heading.textContent = title;
+
+      section.appendChild(heading);
+
+      if (description) {
+        const desc = document.createElement("p");
+        desc.className = "saved-section-description";
+        desc.textContent = description;
+        section.appendChild(desc);
+      }
+
+      return section;
+    }
+
+    // Crear tarjeta para foto de RA
+    function createPhotoCard(item, index) {
+      const card = document.createElement("div");
+      card.className = "wide-card";
+      card.style.marginTop = "8px";
+
+      const img = document.createElement("img");
+      img.className = "media-item";
+      img.src = item.photoUrl;
+      img.alt = "Foto de Realidad Aumentada";
+
+      const label = document.createElement("span");
+      label.className = "card-label";
+      label.textContent = `Foto RA #${index}`;
+
+      card.appendChild(img);
+      card.appendChild(label);
+
+      card.addEventListener("click", () => {
+        openPhotoViewer(
+          item.photoUrl,
+          `Foto RA #${index} ${item.date || ""}`
+        );
+      });
+
+      return card;
+    }
+
+    // Crear tarjeta para video antiguo
+    function createVideoCard(item, index) {
+      const card = document.createElement("div");
+      card.className = "wide-card";
+      card.style.marginTop = "8px";
+
+      const video = document.createElement("video");
+      video.className = `media-item ${item.appliedFilter || ""}`;
+      video.muted = true;
+      video.playsInline = true;
+
+      const source = document.createElement("source");
+      source.src = item.videoUrl;
+      source.type = "video/mp4";
+
+      video.appendChild(source);
+
+      const playBadge = document.createElement("div");
+      playBadge.className = "play-badge";
+      playBadge.innerHTML = '<i data-lucide="play" style="width: 20px; height: 20px; fill: white;"></i>';
+
+      const label = document.createElement("span");
+      label.className = "card-label";
+      label.textContent = `Video Guardado #${index}`;
+
+      card.appendChild(video);
+      card.appendChild(playBadge);
+      card.appendChild(label);
+
+      card.addEventListener("click", () => {
+        openVideoViewer(item.videoUrl, item.appliedFilter);
+      });
+
+      return card;
+    }
+
+    // Crear tarjeta para GIF
+    function createGifCard(item) {
+      const card = document.createElement("div");
+      card.className = "saved-gif-card";
+
+      const img = document.createElement("img");
+      img.className = `media-item ${item.appliedFilter || ""}`;
+      img.src = item.gifUrl;
+      img.alt = item.mediaName || "GIF guardado";
+
+      const playBadge = document.createElement("div");
+      playBadge.className = "play-badge";
+      playBadge.innerHTML = '<i data-lucide="image" style="width: 20px; height: 20px;"></i>';
+
+      const label = document.createElement("span");
+      label.className = "card-label";
+      label.textContent = item.mediaName || "GIF guardado";
+
+      card.appendChild(img);
+      card.appendChild(playBadge);
+      card.appendChild(label);
+
+      card.addEventListener("click", () => {
+        openGifViewer(item.gifUrl, item.appliedFilter);
+      });
+
+      return card;
+    }
+
+    // Separar los elementos guardados por tipo
+    const savedPhotos = savedGallery.filter(item =>
+      item.type === "photo" ||
+      (!!item.photoUrl && !item.videoUrl && !item.gifUrl)
+    );
+
+    const savedGifs = savedGallery.filter(item =>
+      item.type === "gif" || !!item.gifUrl
+    );
+
+    const savedVideos = savedGallery.filter(item =>
+      !!item.videoUrl && item.type !== "gif"
+    );
+
+    // 1. Fotos de Realidad Aumentada
+    if (savedPhotos.length > 0) {
+      const photoSection = createSectionTitle(
+        `Fotos de Realidad Aumentada (${savedPhotos.length})`,
+        "Fotografías tomadas desde la cámara."
+      );
+
+      savedPhotos.forEach((item, index) => {
+        photoSection.appendChild(
+          createPhotoCard(item, index + 1)
+        );
+      });
+
+      savedVideosContainer.appendChild(photoSection);
+    }
+
+    // 2. GIF organizados por equipo
+    if (savedGifs.length > 0) {
+      const gifSection = createSectionTitle(
+        `GIF Guardados (${savedGifs.length})`,
+        "Tus GIF están organizados según el equipo seleccionado."
+      );
+
+      // Agrupar GIF por equipo
+      const gifsByTeam = {};
+
+      savedGifs.forEach(item => {
+        const teamId = item.teamId || "otros";
+        const teamName = item.teamName || "Otros GIF";
+
+        if (!gifsByTeam[teamId]) {
+          gifsByTeam[teamId] = {
+            name: teamName,
+            gifs: []
+          };
         }
 
-        savedVideosContainer.appendChild(card);
+        gifsByTeam[teamId].gifs.push(item);
       });
-      lucide.createIcons();
+
+      // Mostrar cada equipo
+      Object.keys(gifsByTeam).forEach(teamId => {
+        const team = gifsByTeam[teamId];
+
+        const teamSection = document.createElement("div");
+        teamSection.className = "team-gallery-section";
+
+        const teamTitle = document.createElement("div");
+        teamTitle.className = "team-gallery-title";
+
+        // Buscar logo del equipo
+        const teamLogos = {
+          yankees: "147",
+          athletics: "133",
+          mariners: "136",
+          redsox: "111",
+          astros: "117",
+          rangers: "140",
+          angels: "108",
+          orioles: "110",
+          bluejays: "141",
+          guardians: "114",
+          cubs: "112",
+          cardinals: "138",
+          giants: "137",
+          padres: "135",
+          braves: "144"
+        };
+
+        if (teamLogos[teamId]) {
+          const logo = document.createElement("img");
+          logo.src = `https://www.mlbstatic.com/team-logos/${teamLogos[teamId]}.svg`;
+          logo.alt = team.name;
+          teamTitle.appendChild(logo);
+        }
+
+        const teamName = document.createElement("span");
+        teamName.textContent = `${team.name} (${team.gifs.length})`;
+        teamTitle.appendChild(teamName);
+
+        const gifGrid = document.createElement("div");
+        gifGrid.className = "saved-gif-grid";
+
+        team.gifs.forEach(item => {
+          gifGrid.appendChild(createGifCard(item));
+        });
+
+        teamSection.appendChild(teamTitle);
+        teamSection.appendChild(gifGrid);
+
+        gifSection.appendChild(teamSection);
+      });
+
+      savedVideosContainer.appendChild(gifSection);
     }
+
+    // 3. Videos guardados anteriormente
+    if (savedVideos.length > 0) {
+      const videoSection = createSectionTitle(
+        `Videos Guardados (${savedVideos.length})`,
+        "Videos que ya habías guardado anteriormente."
+      );
+
+      savedVideos.forEach((item, index) => {
+        videoSection.appendChild(
+          createVideoCard(item, index + 1)
+        );
+      });
+
+      savedVideosContainer.appendChild(videoSection);
+    }
+
+    // Mensaje cuando no hay creaciones guardadas
+    if (
+      savedPhotos.length === 0 &&
+      savedGifs.length === 0 &&
+      savedVideos.length === 0
+    ) {
+      const emptySection = createSectionTitle(
+        "Tus creaciones",
+        "Aquí aparecerán tus fotos de RA y los GIF que guardes desde Filtros."
+      );
+
+      const emptyMessage = document.createElement("div");
+      emptyMessage.className = "saved-empty";
+      emptyMessage.textContent = "Todavía no tienes creaciones guardadas.";
+
+      emptySection.appendChild(emptyMessage);
+      savedVideosContainer.appendChild(emptySection);
+    }
+
+    lucide.createIcons();
   </script>
+
 </body>
 </html>
