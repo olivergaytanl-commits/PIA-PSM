@@ -530,11 +530,51 @@
       }
     }
 
+    function getRandomReward() {
+      const rewards = [
+        "🎟️ ¡Ganaste boletos para un partido!",
+        "👕 ¡Ganaste un jersey!",
+        "🧢 ¡Ganaste una gorra!",
+        "🍀 ¡Suerte a la próxima! Esta vez no ganaste premio."
+      ];
+
+      const randomIndex = Math.floor(Math.random() * rewards.length);
+
+      return rewards[randomIndex];
+    }
+
     function endGame() {
       isPlaying = false;
+
       setTimeout(() => {
-        alert(`¡Partida finalizada! Llegaste al Nivel ${level} con ${score} Puntos.`);
+
+        let message = `¡Partida finalizada!\n\n`;
+        message += `Nivel alcanzado: ${level}\n`;
+        message += `Puntuación: ${score} puntos\n\n`;
+
+        if (score > 100) {
+          const reward = getRandomReward();
+
+          message += "🏆 ¡FELICIDADES!\n";
+          message += "Superaste los 100 puntos.\n\n";
+          message += "Tu recompensa es:\n";
+          message += reward;
+
+          confetti({
+            particleCount: 120,
+            spread: 90,
+            origin: { y: 0.6 }
+          });
+
+        } else {
+          message += "¡Buen intento!\n";
+          message += "Necesitas superar los 100 puntos para conseguir una recompensa.";
+        }
+
+        alert(message);
+
         menuOverlay.style.display = "flex";
+
       }, 500);
     }
 
